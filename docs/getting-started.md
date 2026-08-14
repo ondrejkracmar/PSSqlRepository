@@ -26,19 +26,6 @@ Verify the import:
 Get-PSSqlRepositoryProvider | Format-Table Name, DisplayName
 ```
 
-### From a source checkout
-
-Only from the Azure DevOps repository — the GitHub mirror is a published artifact and ships no
-`src/`.
-
-```powershell
-dotnet build .\src\PSSqlRepository.slnx
-Import-Module .\src\PSSqlRepository\PSSqlRepository.psd1
-```
-
-`Import-Module` on the manifest under `src\` only works **after** a build — the manifest points at
-`bin\<tfm>\PSSqlRepository.Commands.dll`, which does not exist in a fresh clone.
-
 ### Adding a provider that is not built in
 
 Providers such as DuckDB ship separately as signed extensions, published to the PowerShell Gallery

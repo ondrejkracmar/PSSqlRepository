@@ -158,13 +158,9 @@ findings — lives under `docs/internal/` and is not part of the published mirro
 
 ## Development
 
-From a source checkout of the Azure DevOps repository — **not** from the GitHub mirror, which
-ships no `src/`:
-
-```powershell
-dotnet build .\src\PSSqlRepository.slnx
-dotnet test  .\src\PSSqlRepository.slnx
-```
+Source, build instructions and contributions live in the Azure DevOps repository
+(`i-system/PSModules/PSSqlRepository`). This README is published alongside a compiled module, so
+build steps are documented where the source they refer to actually is.
 
 ## Notes
 
