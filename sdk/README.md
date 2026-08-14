@@ -1,4 +1,4 @@
-# PSSqlRepository Extensions SDK (0.2.1)
+# PSSqlRepository Extensions SDK (0.3.0)
 
 This folder contains a **self-contained, restorable NuGet package set** for building
 your own PSSqlRepository extensions (SQL providers and authentication resolvers). The
@@ -7,11 +7,11 @@ offline from this single folder — no extra feed required.
 
 ## Packages
 
-- `PSSqlRepository.Abstractions.0.2.1.nupkg`
-- `PSSqlRepository.Authentications.0.2.1.nupkg`
-- `PSSqlRepository.Core.0.2.1.nupkg`
-- `PSSqlRepository.Extensions.Sdk.0.2.1.nupkg`
-- `PSSqlRepository.Providers.0.2.1.nupkg`
+- `PSSqlRepository.Abstractions.0.3.0.nupkg`
+- `PSSqlRepository.Authentications.0.3.0.nupkg`
+- `PSSqlRepository.Core.0.3.0.nupkg`
+- `PSSqlRepository.Extensions.Sdk.0.3.0.nupkg`
+- `PSSqlRepository.Providers.0.3.0.nupkg`
 
 ## Use it in your extension project
 
@@ -32,7 +32,7 @@ offline from this single folder — no extra feed required.
 3. Reference the SDK from your extension project:
 
    ```sh
-   dotnet add package PSSqlRepository.Extensions.Sdk --version 0.2.1
+   dotnet add package PSSqlRepository.Extensions.Sdk --version 0.3.0
    ```
 
 The SDK brings in the contract assemblies and the MSBuild targets that validate and
@@ -41,11 +41,27 @@ deploy your extension automatically. Set `<ExtensionSubfolder>` (`Providers` or
 
 ## Trust model
 
-PSSqlRepository loads extensions with an **opt-in, environment-variable** trust policy
-(there is no trust.json file):
+**Strong-naming is mandatory and the loader fails closed.** A candidate's strong-name
+public key token is read from PE metadata — before any of its code runs — and the
+extension is instantiated only when that token is the module's own or is listed under
+`trustedPublicKeyTokens` in `extensions.trust.json` in the module root. Anything
+unsigned, or signed with an unknown key, is rejected.
 
-- `PSSQLREPOSITORY_EXTENSION_REQUIRE_SIGNATURE=1` requires a valid Authenticode signature.
-- `PSSQLREPOSITORY_EXTENSION_ALLOWLIST=<sha256>[;<sha256>…]` restricts loading to listed hashes.
+Sign with your own key (never the module's, which is the trust anchor):
 
-With neither variable set, your extension loads as-is, so strong-naming is optional.
+```xml
+<SignAssembly>true</SignAssembly>
+<AssemblyOriginatorKeyFile>MyCompany.snk</AssemblyOriginatorKeyFile>
+```
+
+Publish your token with `Get-PSSqlRepositoryExtensionToken -Path <dll>` so an
+administrator can grant trust deliberately:
+
+```powershell
+Install-PSSqlRepositoryExtension -Path .\Your.Extension-1.0.0.zip -Trust
+# restart pwsh, then verify
+Get-PSSqlRepositoryExtension | Format-Table Name, Status, Reason
+```
+
+Until trust is granted the extension installs but reports as `Rejected`.
 See the `docs/` folder and the project `README.md` for the full authoring guide.

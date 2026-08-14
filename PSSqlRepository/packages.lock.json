@@ -269,19 +269,6 @@
         "resolved": "9.0.4",
         "contentHash": "o94k2RKuAce3GeDMlUvIXlhVa1kWpJw95E6C9LwW0KlG0nj5+SgCiIxJ2Eroqb9sLtG1mEMbFttZIBZ13EJPvQ=="
       },
-      "isystem.shared.infrastructure.core": {
-        "type": "Project"
-      },
-      "isystem.shared.infrastructure.efcore": {
-        "type": "Project",
-        "dependencies": {
-          "Isystem.Shared.Infrastructure.Core": "[1.0.0, )",
-          "Microsoft.EntityFrameworkCore": "[10.0.3, )"
-        }
-      },
-      "isystem.shared.infrastructure.services": {
-        "type": "Project"
-      },
       "pssqlrepository.abstractions": {
         "type": "Project"
       },
@@ -311,7 +298,7 @@
       "pssqlrepository.commands": {
         "type": "Project",
         "dependencies": {
-          "Isystem.Shared.Infrastructure.Services": "[1.0.0, )",
+          "Isystem.Shared.Infrastructure.Services": "[1.0.1, )",
           "PSSqlRepository.Abstractions": "[0.0.0-local, )",
           "PSSqlRepository.Authentications": "[0.0.0-local, )",
           "PSSqlRepository.Core": "[0.0.0-local, )",
@@ -321,8 +308,8 @@
       "pssqlrepository.core": {
         "type": "Project",
         "dependencies": {
-          "Isystem.Shared.Infrastructure.Core": "[1.0.0, )",
-          "Isystem.Shared.Infrastructure.EFCore": "[1.0.0, )",
+          "Isystem.Shared.Infrastructure.Core": "[1.0.1, )",
+          "Isystem.Shared.Infrastructure.EFCore": "[1.0.1, )",
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.3, )",
           "Microsoft.Extensions.Options": "[10.0.3, )",
           "PSSqlRepository.Abstractions": "[0.0.0-local, )",
@@ -342,8 +329,8 @@
       "pssqlrepository.providers": {
         "type": "Project",
         "dependencies": {
-          "Isystem.Shared.Infrastructure.Core": "[1.0.0, )",
-          "Isystem.Shared.Infrastructure.Services": "[1.0.0, )",
+          "Isystem.Shared.Infrastructure.Core": "[1.0.1, )",
+          "Isystem.Shared.Infrastructure.Services": "[1.0.1, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.3, )",
           "PSSqlRepository.Abstractions": "[0.0.0-local, )"
         }
@@ -363,6 +350,29 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "[10.0.3, )",
           "PSSqlRepository.Extensions.Sdk": "[0.0.0-local, )"
         }
+      },
+      "Isystem.Shared.Infrastructure.Core": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.1, )",
+        "resolved": "1.0.1",
+        "contentHash": "90BBY0rk2+DPmFHWSImi+BDqFAHebB/RhEd9tEjS38qUVsBEV5BWr32raknHF2euCZtMYqT4NupAhkDOpemrJg=="
+      },
+      "Isystem.Shared.Infrastructure.EFCore": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.1, )",
+        "resolved": "1.0.1",
+        "contentHash": "O86tMxiHN9efpZhYYeb90SubW7lLTBS+ka422IiK2I8ysHjwioTkkWtYb612nCtSH9k8rtS7ViTdJ+axYLSMfQ==",
+        "dependencies": {
+          "Isystem.Shared.Infrastructure.Core": "1.0.1",
+          "Isystem.Shared.Infrastructure.Services": "1.0.1",
+          "Microsoft.EntityFrameworkCore": "10.0.3"
+        }
+      },
+      "Isystem.Shared.Infrastructure.Services": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.1, )",
+        "resolved": "1.0.1",
+        "contentHash": "8cUM4XToFFgzJaEMP8nW7DEQyII03AF52IZs+jUxe2tuWeeqL0oFxMW5Nptisl5NRQfxzHuiEJkF09j2ZpLU3Q=="
       },
       "Microsoft.Data.SqlClient": {
         "type": "CentralTransitive",
@@ -722,19 +732,6 @@
         "resolved": "8.0.0",
         "contentHash": "+TUFINV2q2ifyXauQXRwy4CiBhqvDEDZeVJU7qfxya4aRYOKzVBpN+4acx25VcPB9ywUN6C0n8drWl110PhZEg=="
       },
-      "isystem.shared.infrastructure.core": {
-        "type": "Project"
-      },
-      "isystem.shared.infrastructure.efcore": {
-        "type": "Project",
-        "dependencies": {
-          "Isystem.Shared.Infrastructure.Core": "[1.0.0, )",
-          "Microsoft.EntityFrameworkCore": "[8.0.20, )"
-        }
-      },
-      "isystem.shared.infrastructure.services": {
-        "type": "Project"
-      },
       "pssqlrepository.abstractions": {
         "type": "Project"
       },
@@ -764,7 +761,7 @@
       "pssqlrepository.commands": {
         "type": "Project",
         "dependencies": {
-          "Isystem.Shared.Infrastructure.Services": "[1.0.0, )",
+          "Isystem.Shared.Infrastructure.Services": "[1.0.1, )",
           "PSSqlRepository.Abstractions": "[0.0.0-local, )",
           "PSSqlRepository.Authentications": "[0.0.0-local, )",
           "PSSqlRepository.Core": "[0.0.0-local, )",
@@ -774,8 +771,8 @@
       "pssqlrepository.core": {
         "type": "Project",
         "dependencies": {
-          "Isystem.Shared.Infrastructure.Core": "[1.0.0, )",
-          "Isystem.Shared.Infrastructure.EFCore": "[1.0.0, )",
+          "Isystem.Shared.Infrastructure.Core": "[1.0.1, )",
+          "Isystem.Shared.Infrastructure.EFCore": "[1.0.1, )",
           "Microsoft.EntityFrameworkCore.Relational": "[8.0.18, )",
           "Microsoft.Extensions.Options": "[8.0.2, )",
           "PSSqlRepository.Abstractions": "[0.0.0-local, )",
@@ -795,8 +792,8 @@
       "pssqlrepository.providers": {
         "type": "Project",
         "dependencies": {
-          "Isystem.Shared.Infrastructure.Core": "[1.0.0, )",
-          "Isystem.Shared.Infrastructure.Services": "[1.0.0, )",
+          "Isystem.Shared.Infrastructure.Core": "[1.0.1, )",
+          "Isystem.Shared.Infrastructure.Services": "[1.0.1, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.2, )",
           "PSSqlRepository.Abstractions": "[0.0.0-local, )"
         }
@@ -816,6 +813,29 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "[8.0.18, )",
           "PSSqlRepository.Extensions.Sdk": "[0.0.0-local, )"
         }
+      },
+      "Isystem.Shared.Infrastructure.Core": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.1, )",
+        "resolved": "1.0.1",
+        "contentHash": "90BBY0rk2+DPmFHWSImi+BDqFAHebB/RhEd9tEjS38qUVsBEV5BWr32raknHF2euCZtMYqT4NupAhkDOpemrJg=="
+      },
+      "Isystem.Shared.Infrastructure.EFCore": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.1, )",
+        "resolved": "1.0.1",
+        "contentHash": "O86tMxiHN9efpZhYYeb90SubW7lLTBS+ka422IiK2I8ysHjwioTkkWtYb612nCtSH9k8rtS7ViTdJ+axYLSMfQ==",
+        "dependencies": {
+          "Isystem.Shared.Infrastructure.Core": "1.0.1",
+          "Isystem.Shared.Infrastructure.Services": "1.0.1",
+          "Microsoft.EntityFrameworkCore": "8.0.20"
+        }
+      },
+      "Isystem.Shared.Infrastructure.Services": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.1, )",
+        "resolved": "1.0.1",
+        "contentHash": "8cUM4XToFFgzJaEMP8nW7DEQyII03AF52IZs+jUxe2tuWeeqL0oFxMW5Nptisl5NRQfxzHuiEJkF09j2ZpLU3Q=="
       },
       "Microsoft.Data.SqlClient": {
         "type": "CentralTransitive",

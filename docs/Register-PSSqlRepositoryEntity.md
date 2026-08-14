@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 07/28/2026
+ms.date: 08/14/2026
 PlatyPS schema version: 2024-05-01
 title: Register-PSSqlRepositoryEntity
 ---
