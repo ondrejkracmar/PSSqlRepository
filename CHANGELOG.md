@@ -6,6 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-14
+
+### Added
+- **Batched existence resolution for `Save-PSSqlRepositoryEntity` in Upsert/Update mode**
+  (`-BatchSize`, default 500). Entities are buffered per entity type and their keys resolved with
+  ONE keyed `IN` query per batch instead of one `GetByIdAsync` round-trip per entity. On providers
+  with a high fixed cost per query the per-row lookup dominates the whole save — measured on
+  DuckDB: ~9 rows/s per-row vs. hundreds on the batched path; on SQLite roughly 2× — while `Add`
+  mode (no existence check) is unaffected and keeps the streaming path.
+  - Duplicate keys are merged, not double-inserted — both within a batch and **across batches of
+    one invocation**: an entity added in an earlier batch is not yet in the database, so a carried
+    key → tracked-entity map (the batched equivalent of `FindAsync`'s change-tracker probe) is
+    what routes a repeated key to a merge instead of a second `INSERT` that would fail at
+    `SaveChanges`.
+  - Semantics preserved: `SaveChanges` still runs exactly once at end of pipeline; `-PassThru`
+    output keeps its order and content (it now surfaces at batch boundaries rather than per
+    record); `Update` mode still throws `ItemNotFoundException` for a missing key and rejects a
+    default key; `ShouldProcess`/`-WhatIf` still applies per record. `-BatchSize 1` restores
+    strictly per-record behaviour, bit for bit.
+  - The batch key predicate is built against a parameter-bound list (not an embedded constant),
+    so EF caches one query plan per shape instead of recompiling per key list.
+
 ## [0.3.0] - 2026-08-14
 
 ### Changed

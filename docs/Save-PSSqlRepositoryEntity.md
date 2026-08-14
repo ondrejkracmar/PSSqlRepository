@@ -22,7 +22,7 @@ title: Save-PSSqlRepositoryEntity
 ```
 Save-PSSqlRepositoryEntity [-InputObject] <psobject> [[-EntityType] <type>]
  [-Mode <SqlEntitySaveMode>] [-IncludeNavigations] [-OrphanBehavior <OrphanBehavior>] [-PassThru]
- [-SkipEnumeration] [-CommandTimeout <int>] [-WhatIf] [-Confirm]
+ [-SkipEnumeration] [-CommandTimeout <int>] [-BatchSize <int>] [-WhatIf] [-Confirm]
 ```
 
 ## ALIASES
@@ -41,6 +41,27 @@ This cmdlet has the following aliases,
 {{ Add example description here }}
 
 ## PARAMETERS
+
+### -BatchSize
+
+{{ Fill BatchSize Description }}
+
+```yaml
+Type: System.Int32
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
 ### -CommandTimeout
 
