@@ -24,12 +24,10 @@ Import-Module PSSqlRepository
 Requires PowerShell 7.4+. The module ships both a `net8.0` and a `net10.0` build and the loader
 picks the one matching the running runtime — `net8.0` for PowerShell 7.4/7.5, `net10.0` for 7.6+.
 
-To work from a source checkout instead, build first and import the built manifest:
-
-```powershell
-dotnet build .\src\PSSqlRepository.slnx
-Import-Module .\src\PSSqlRepository\PSSqlRepository.psd1
-```
+> **Reading this on GitHub?** This repository is a published mirror: it carries the compiled
+> module, its documentation and the Extensions SDK packages, but no source and no build. Source
+> and issues live in Azure DevOps (`i-system/PSModules/PSSqlRepository`). Install from the
+> PowerShell Gallery as above.
 
 ## Quick start
 
@@ -115,10 +113,23 @@ Details in [`docs/provider-auth-reference.md`](docs/provider-auth-reference.md).
 Additional providers (DuckDB, MySQL, …) and authentication surfaces are separate, strong-named
 packages dropped into the module's `bin\<tfm>\Providers\` or `bin\<tfm>\Auth\` folder.
 
+They are published to the PowerShell Gallery as thin wrapper modules whose only content is the
+payload. Installing one is two steps — get the payload, then move it into PSSqlRepository:
+
+```powershell
+Install-PSResource PSSqlRepository.Providers.DuckDB -Repository PSGallery
+Install-PSSqlRepositoryExtension -FromModule PSSqlRepository.Providers.DuckDB -Trust
+
+# restart PowerShell, then confirm
+Get-PSSqlRepositoryExtension | Format-Table Name, Status, Reason
+Get-PSSqlRepositoryProvider  | Format-Table Name, DisplayName
+```
+
+Offline, or from a build artifact, the same cmdlet takes a `.zip`, `.nupkg`, folder or private feed:
+
 ```powershell
 Install-PSSqlRepositoryExtension -Path .\MyProvider-1.0.0.zip -Trust
-# restart PowerShell
-Get-PSSqlRepositoryExtension | Format-Table Name, Status, Reason
+Install-PSSqlRepositoryExtension -Name My.Provider -Repository MyFeed -Trust
 ```
 
 The loader **fails closed**: it only instantiates strong-named assemblies whose public key token is
@@ -146,6 +157,9 @@ Maintainer documentation — the release runbook, the SNK threat model and the c
 findings — lives under `docs/internal/` and is not part of the published mirror.
 
 ## Development
+
+From a source checkout of the Azure DevOps repository — **not** from the GitHub mirror, which
+ships no `src/`:
 
 ```powershell
 dotnet build .\src\PSSqlRepository.slnx

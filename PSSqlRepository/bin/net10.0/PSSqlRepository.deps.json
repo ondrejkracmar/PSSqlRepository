@@ -6,17 +6,17 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "PSSqlRepository/0.3.0": {
+      "PSSqlRepository/0.3.1": {
         "dependencies": {
-          "PSSqlRepository.Abstractions": "0.3.0",
-          "PSSqlRepository.Authentications": "0.3.0",
-          "PSSqlRepository.Authentications.SqlServer": "0.3.0",
-          "PSSqlRepository.Authentications.Sqlite": "0.3.0",
-          "PSSqlRepository.Commands": "0.3.0",
-          "PSSqlRepository.Core": "0.3.0",
-          "PSSqlRepository.Providers": "0.3.0",
-          "PSSqlRepository.Providers.SqlServer": "0.3.0",
-          "PSSqlRepository.Providers.Sqlite": "0.3.0"
+          "PSSqlRepository.Abstractions": "0.3.1",
+          "PSSqlRepository.Authentications": "0.3.1",
+          "PSSqlRepository.Authentications.SqlServer": "0.3.1",
+          "PSSqlRepository.Authentications.Sqlite": "0.3.1",
+          "PSSqlRepository.Commands": "0.3.1",
+          "PSSqlRepository.Core": "0.3.1",
+          "PSSqlRepository.Providers": "0.3.1",
+          "PSSqlRepository.Providers.SqlServer": "0.3.1",
+          "PSSqlRepository.Providers.Sqlite": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.dll": {}
@@ -714,142 +714,142 @@
           }
         }
       },
-      "PSSqlRepository.Abstractions/0.3.0": {
+      "PSSqlRepository.Abstractions/0.3.1": {
         "runtime": {
           "PSSqlRepository.Abstractions.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Authentications/0.3.0": {
+      "PSSqlRepository.Authentications/0.3.1": {
         "dependencies": {
-          "PSSqlRepository.Abstractions": "0.3.0",
-          "PSSqlRepository.Providers": "0.3.0"
+          "PSSqlRepository.Abstractions": "0.3.1",
+          "PSSqlRepository.Providers": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.Authentications.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Authentications.Sqlite/0.3.0": {
+      "PSSqlRepository.Authentications.Sqlite/0.3.1": {
         "dependencies": {
           "Microsoft.Data.Sqlite.Core": "10.0.3",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.3",
-          "PSSqlRepository.Extensions.Sdk": "0.3.0"
+          "PSSqlRepository.Extensions.Sdk": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.Authentications.Sqlite.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Authentications.SqlServer/0.3.0": {
+      "PSSqlRepository.Authentications.SqlServer/0.3.1": {
         "dependencies": {
           "Microsoft.Data.SqlClient": "6.1.1",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.3",
-          "PSSqlRepository.Extensions.Sdk": "0.3.0"
+          "PSSqlRepository.Extensions.Sdk": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.Authentications.SqlServer.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Commands/0.3.0": {
+      "PSSqlRepository.Commands/0.3.1": {
         "dependencies": {
           "Isystem.Shared.Infrastructure.Services": "1.0.1",
-          "PSSqlRepository.Abstractions": "0.3.0",
-          "PSSqlRepository.Authentications": "0.3.0",
-          "PSSqlRepository.Core": "0.3.0",
-          "PSSqlRepository.Providers": "0.3.0"
+          "PSSqlRepository.Abstractions": "0.3.1",
+          "PSSqlRepository.Authentications": "0.3.1",
+          "PSSqlRepository.Core": "0.3.1",
+          "PSSqlRepository.Providers": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.Commands.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Core/0.3.0": {
+      "PSSqlRepository.Core/0.3.1": {
         "dependencies": {
           "Isystem.Shared.Infrastructure.Core": "1.0.1",
           "Isystem.Shared.Infrastructure.EFCore": "1.0.1",
           "Microsoft.EntityFrameworkCore.Relational": "10.0.3",
           "Microsoft.Extensions.Options": "10.0.3",
-          "PSSqlRepository.Abstractions": "0.3.0",
-          "PSSqlRepository.Authentications": "0.3.0",
-          "PSSqlRepository.Providers": "0.3.0"
+          "PSSqlRepository.Abstractions": "0.3.1",
+          "PSSqlRepository.Authentications": "0.3.1",
+          "PSSqlRepository.Providers": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.Core.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Extensions.Sdk/0.3.0": {
+      "PSSqlRepository.Extensions.Sdk/0.3.1": {
         "dependencies": {
-          "PSSqlRepository.Abstractions": "0.3.0",
-          "PSSqlRepository.Authentications": "0.3.0",
-          "PSSqlRepository.Core": "0.3.0",
-          "PSSqlRepository.Providers": "0.3.0"
+          "PSSqlRepository.Abstractions": "0.3.1",
+          "PSSqlRepository.Authentications": "0.3.1",
+          "PSSqlRepository.Core": "0.3.1",
+          "PSSqlRepository.Providers": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.Extensions.Sdk.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Providers/0.3.0": {
+      "PSSqlRepository.Providers/0.3.1": {
         "dependencies": {
           "Isystem.Shared.Infrastructure.Core": "1.0.1",
           "Isystem.Shared.Infrastructure.Services": "1.0.1",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.3",
-          "PSSqlRepository.Abstractions": "0.3.0"
+          "PSSqlRepository.Abstractions": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.Providers.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Providers.Sqlite/0.3.0": {
+      "PSSqlRepository.Providers.Sqlite/0.3.1": {
         "dependencies": {
           "Microsoft.Data.Sqlite.Core": "10.0.3",
           "Microsoft.EntityFrameworkCore.Sqlite": "10.0.3",
-          "PSSqlRepository.Extensions.Sdk": "0.3.0",
+          "PSSqlRepository.Extensions.Sdk": "0.3.1",
           "SQLitePCLRaw.bundle_e_sqlite3": "2.1.12"
         },
         "runtime": {
           "PSSqlRepository.Providers.Sqlite.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       },
-      "PSSqlRepository.Providers.SqlServer/0.3.0": {
+      "PSSqlRepository.Providers.SqlServer/0.3.1": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.3",
-          "PSSqlRepository.Extensions.Sdk": "0.3.0"
+          "PSSqlRepository.Extensions.Sdk": "0.3.1"
         },
         "runtime": {
           "PSSqlRepository.Providers.SqlServer.dll": {
-            "assemblyVersion": "0.3.0.0",
-            "fileVersion": "0.3.0.0"
+            "assemblyVersion": "0.3.1.0",
+            "fileVersion": "0.3.1.0"
           }
         }
       }
     }
   },
   "libraries": {
-    "PSSqlRepository/0.3.0": {
+    "PSSqlRepository/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -1176,52 +1176,52 @@
       "path": "system.security.cryptography.protecteddata/9.0.4",
       "hashPath": "system.security.cryptography.protecteddata.9.0.4.nupkg.sha512"
     },
-    "PSSqlRepository.Abstractions/0.3.0": {
+    "PSSqlRepository.Abstractions/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Authentications/0.3.0": {
+    "PSSqlRepository.Authentications/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Authentications.Sqlite/0.3.0": {
+    "PSSqlRepository.Authentications.Sqlite/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Authentications.SqlServer/0.3.0": {
+    "PSSqlRepository.Authentications.SqlServer/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Commands/0.3.0": {
+    "PSSqlRepository.Commands/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Core/0.3.0": {
+    "PSSqlRepository.Core/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Extensions.Sdk/0.3.0": {
+    "PSSqlRepository.Extensions.Sdk/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Providers/0.3.0": {
+    "PSSqlRepository.Providers/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Providers.Sqlite/0.3.0": {
+    "PSSqlRepository.Providers.Sqlite/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "PSSqlRepository.Providers.SqlServer/0.3.0": {
+    "PSSqlRepository.Providers.SqlServer/0.3.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -6,6 +6,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-14
+
+### Changed
+- `Isystem.Shared.Infrastructure.*` is consumed from the private Artifacts feed as a
+  `PackageReference` instead of being built from a sibling source checkout. The published SDK
+  packages previously declared a dependency on `1.0.0-localfeed` — a version that exists only
+  inside a vendored feed — which is why extension repositories had to vendor the whole package
+  set to build at all. They now declare `1.0.1` and resolve from the feed.
+- **Publication is gated on a git tag.** Pushing to `main` builds and tests but no longer publishes
+  to the Artifacts feed or the PowerShell Gallery. Releasing is `git tag v<x.y.z> && git push origin
+  v<x.y.z>`. Previously `main` published a bare `MajorMinorPatch` and created no tag, so every build
+  after a release proposed the version that had just been published.
+- Resource strings format their arguments with `CurrentCulture` instead of `CurrentUICulture`;
+  `ResourceManager.GetString` still uses `CurrentUICulture`. Numbers and dates inside diagnostics
+  now follow regional settings rather than the display language.
+
+### Fixed
+- `Install-PSSqlRepositoryExtension` no longer tries to overwrite host assemblies with copies
+  travelling in an extension payload. `Isystem.Shared.Infrastructure.*` is skipped alongside
+  `PSSqlRepository.*`; the copy could never succeed (the session running the cmdlet has them
+  loaded) and succeeding would have broken contract type identity.
+- A locked or read-only dependency is reported as a warning naming the cause instead of an
+  `IOException` that aborted the install half-way through.
+- The SDK's `DeployExtensionToModule` target filters `Isystem.Shared.Infrastructure.*` out of
+  extension payloads, so newly built extensions no longer carry host assemblies.
+- `Testcontainers.MsSql` upgraded to 4.14.0. 3.10.0 pinned `SSH.NET` 2023.0.0, whose advisory
+  (GHSA-q939-rpr3-3284) failed CI restore once it reached the NuGet audit database.
+
+### Documentation
+- New `docs/entity-model.md`: a worked model of Company / Person / Customer joined by foreign keys,
+  graph saves, eager loading and transactions, every snippet executed before being written down.
+- `docs/sdk.md` and `docs/extensibility.md` corrected — they named types that do not exist
+  (`SqlProviderPlugin`, `SqlAuthenticationPlugin`, `[assembly: PSSqlRepositoryPlugin]`) and, along
+  with the SDK README, described a trust model based on environment variables that was replaced by
+  the strong-name gate long ago.
+- Install instructions lead with the PowerShell Gallery route rather than a `.zip`.
+- `docs/mapping-model.md` rewritten against the actual converter; it was unrenderable and described
+  intent rather than behaviour.
+- Maintainer material moved to `docs/internal/`, which is excluded from the public GitHub mirror.
+
+## [0.2.1] and earlier
+
+> These notes accumulated under *Unreleased* across the 0.2.x line and were never split per
+> release. They are recorded here as one block rather than attributed to a version after the fact.
+
 ### Added
 - `Get-PSSqlRepositoryEntity -IncludeAll` switch: eagerly loads every
   navigation declared on the entity in the EF Core model (collections and
