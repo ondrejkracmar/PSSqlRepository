@@ -6,6 +6,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-08-14
+
+### Added
+- **Extension migration between module versions**:
+  `Install-PSSqlRepositoryExtension -FromModule PSSqlRepository -Version <old>` now recognises an
+  installed PSSqlRepository module as a MIGRATION source (`-Version` is new on that parameter set).
+  Its third-party extensions are discovered by strong-name token — in-box plugins ship with every
+  version and are never migrated — and their dependencies come from the source's
+  `extensions.deps.json` record, or, for extensions deployed before the record existed, from a
+  transitive referenced-assembly closure over the files actually present in the source framework
+  root. Verified end to end against a live 0.3.1 install: DuckDB, PostgreSQL and MySQL providers
+  moved with their dependency chains, trust and dependency records written, and the migrated module
+  loads them. Upgrading the module previously meant copying the DLL, its dependencies and the trust
+  file by hand.
+
+### Fixed
+- **`Install-PSSqlRepositoryExtension` no longer crashes mid-install on a locked file.** The
+  extension copy and the `runtimes/` native mirror called `File.Copy` unguarded, so a file loaded by
+  any running session — near-certain, since the cmdlet runs from a session that imported the module —
+  escaped as an unhandled exception (`IOException`, surfaced in the field as
+  `NullReferenceException`) after part of the payload was already written. Both paths now degrade to
+  an actionable error/warning per file, like dependency copies always did.
+- **Installing a single `.dll` from another module's `Providers` folder no longer clobbers the
+  target's native tree.** The `runtimes/` mirror copied the WHOLE source tree — for a source inside a
+  full module install, that is every provider's natives, overwriting the target module's own (e.g.
+  its `e_sqlite3.dll`) with another version's copies. The merge is now per-file: missing files are
+  copied, identical ones skipped, and a differing file is only overwritten when the source is a
+  publish artifact (whose runtimes belong to the extension); when the source is another module's
+  shared tree, the target's copy wins and the decision is reported.
+
 ## [0.4.0] - 2026-08-14
 
 ### Added

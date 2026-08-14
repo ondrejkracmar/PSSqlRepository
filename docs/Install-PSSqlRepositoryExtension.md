@@ -34,8 +34,8 @@ Install-PSSqlRepositoryExtension -Name <string> -Repository <string> [-Version <
 ### InstalledModule
 
 ```
-Install-PSSqlRepositoryExtension -FromModule <string> [-ModuleRoot <string>] [-Subfolder <string>]
- [-Trust] [-Force] [-WhatIf] [-Confirm]
+Install-PSSqlRepositoryExtension -FromModule <string> [-Version <string>] [-ModuleRoot <string>]
+ [-Subfolder <string>] [-Trust] [-Force] [-WhatIf] [-Confirm]
 ```
 
 ## ALIASES
@@ -100,7 +100,7 @@ HelpMessage: ''
 
 ### -FromModule
 
-Name of an installed PowerShell module carrying the extension payload.
+Name of an installed PowerShell module: an extension payload module, or a PSSqlRepository version to migrate extensions from.
 
 ```yaml
 Type: System.String
@@ -256,6 +256,12 @@ SupportsWildcards: false
 Aliases: []
 ParameterSets:
 - Name: Feed
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+- Name: InstalledModule
   Position: Named
   IsRequired: false
   ValueFromPipeline: false
