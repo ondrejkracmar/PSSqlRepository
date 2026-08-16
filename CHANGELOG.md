@@ -6,7 +6,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- **BREAKING — the `Sql` prefix is gone from three loader types.**
+  `SqlExtensionLoader`, `SqlExtensionTrustStore` and `SqlExtensionLoadContext` are now
+  `ExtensionLoader`, `ExtensionTrustStore` and `ExtensionLoadContext`, matching
+  PSDataRepository. Everything else in `Core/Extensions` was already unprefixed, so these
+  three were the odd ones out and the prefix said nothing the namespace did not.
+
+  A script calling `[PSSqlRepository.Core.Extensions.SqlExtensionLoader]::Inspect(...)`
+  needs the new name. **Extensions are not affected** and do not need rebuilding: they
+  reference `Abstractions`, `Extensions.Sdk` and `Providers` and never touch `Core` — verified
+  against the published DuckDB, MySQL and PostgreSQL providers, none of which mentions either
+  type. The extension contract version stays at 1.0.0.
+
+### Added
+- **The plugin load context now follows the .NET plugin model.** It builds an
+  `AssemblyDependencyResolver` from the extension's own `.deps.json`, so an extension resolves
+  the exact versions its build resolved; it gets one context **per extension** rather than per
+  subfolder, which is what makes a resolver usable at all and isolates two plugins in the same
+  folder from each other; and it implements `LoadUnmanagedDll`, so native libraries declared in
+  `deps.json` resolve with the right runtime identifier instead of by directory guesswork.
+- Test coverage levelled against PSDataRepository (182 → 200): `ExtensionDependencyStoreTests`,
+  `ExtensionLoaderIntegrationTests` exercising the real loader against a fixture, and
+  `ManifestDriftTests`, which derives the manifest and the compiled cmdlets independently so a
+  cmdlet added without a manifest entry now fails the build. Approved verbs are read out of the
+  `Verbs*` classes rather than a hand-copied list.
+
 ### Fixed
+- **An extension could shadow a library the module ships.** The load context probed the
+  extension's own folder *before* the module root for non-host assemblies, so an extension
+  carrying its own copy of, say, EF Core would bind to that copy — and a value handed from one
+  extension to another would be typed against two different copies of the same assembly, which
+  the JIT answers with `MissingMethodException`. The module root now wins, which also means an
+  extension can only ever hold a private copy of something the host does *not* ship: exactly the
+  subset where isolation is safe, with no list to maintain.
+
+  Nothing published is affected: the three provider extensions install only their own assembly
+  into the plugin folder, with dependencies arbitrated into the module root, so there was never
+  anything there to shadow. Verified against the installed module.
 - **Extensions with private dependencies installed but never loaded.**
   `Install-PSSqlRepositoryExtension` has always understood the private-dependency shape —
   `{Subfolder}/Contoso.Provider/` holding the assembly together with its own libraries,
@@ -193,7 +230,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `PSSqlRepositoryModuleInitializer` no longer writes diagnostic lines to disk
   directly; the legacy `PSSQLREPOSITORY_LOG` environment variable is now mapped to
   `PSSqlRepositoryDiagnostics.FileLogPath` (file tee remains backward compatible).
-- `SqlExtensionLoader` plug-in load / SHA-256 audit / ALC resolver messages flow
+- `ExtensionLoader` plug-in load / SHA-256 audit / ALC resolver messages flow
   through `PSSqlRepositoryDiagnostics.Verbose` and therefore appear in
   `Import-Module -Verbose` and any subsequent cmdlet's `-Verbose` output.
 - `PSSqlRepositoryCmdletBase` now overrides `BeginProcessing` and `EndProcessing`
