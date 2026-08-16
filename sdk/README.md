@@ -1,4 +1,4 @@
-# PSSqlRepository Extensions SDK (0.4.1)
+# PSSqlRepository Extensions SDK (0.4.2)
 
 This folder contains a **self-contained, restorable NuGet package set** for building
 your own PSSqlRepository extensions (SQL providers and authentication resolvers). The
@@ -7,11 +7,11 @@ offline from this single folder — no extra feed required.
 
 ## Packages
 
-- `PSSqlRepository.Abstractions.0.4.1.nupkg`
-- `PSSqlRepository.Authentications.0.4.1.nupkg`
-- `PSSqlRepository.Core.0.4.1.nupkg`
-- `PSSqlRepository.Extensions.Sdk.0.4.1.nupkg`
-- `PSSqlRepository.Providers.0.4.1.nupkg`
+- `PSSqlRepository.Abstractions.0.4.2.nupkg`
+- `PSSqlRepository.Authentications.0.4.2.nupkg`
+- `PSSqlRepository.Core.0.4.2.nupkg`
+- `PSSqlRepository.Extensions.Sdk.0.4.2.nupkg`
+- `PSSqlRepository.Providers.0.4.2.nupkg`
 
 ## Use it in your extension project
 
@@ -32,7 +32,7 @@ offline from this single folder — no extra feed required.
 3. Reference the SDK from your extension project:
 
    ```sh
-   dotnet add package PSSqlRepository.Extensions.Sdk --version 0.4.1
+   dotnet add package PSSqlRepository.Extensions.Sdk --version 0.4.2
    ```
 
 The SDK brings in the contract assemblies and the MSBuild targets that validate and

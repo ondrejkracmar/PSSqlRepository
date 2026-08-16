@@ -6,6 +6,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Extensions with private dependencies installed but never loaded.**
+  `Install-PSSqlRepositoryExtension` has always understood the private-dependency shape —
+  `{Subfolder}/Contoso.Provider/` holding the assembly together with its own libraries,
+  copied wholesale so nothing lands in the shared module root — but the loader scanned only
+  the top level of each plugin folder. Such an extension reported a successful install and
+  then silently never loaded: no error, just an absent provider. The scan now discovers both
+  shapes, and each private extension gets its own load context probing its own folder, so its
+  libraries resolve without reaching the module root. Everything *beside* the assembly in a
+  private folder stays out of the candidate list, otherwise every library would be inspected
+  and reported as an untrusted rejection.
+
+  This is a host capability, not a contract change: no interface moved and the extension
+  contract version stays at 1.0.0. It does mean an extension published in the private shape
+  will not load on PSSqlRepository 0.4.1 or earlier — it installs and is simply ignored there.
+
+### Changed
+- **Operator-facing messages moved into `Resources/Strings.resx`.** The extension cmdlets and
+  the transaction/session/entity cmdlets built their text inline while the rest of the fleet
+  used resources; 68 keys added. `ErrorRecord` IDs stay inline — they are identifiers callers
+  match on, not prose.
+- `Get-PSSqlRepositoryExtension -MissingAfterUpgrade` told the operator to reinstall each
+  extension by hand; it now points at `-FromModule PSSqlRepository -Version <older> -Trust`,
+  which 0.4.1 introduced.
+
 ## [0.4.1] - 2026-08-14
 
 ### Added
