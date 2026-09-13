@@ -64,6 +64,7 @@ $schema.Imported          # tables that became types
 $schema.Skipped           # tables that did not, with the reason
 $schema.EntityTypes       # [Type[]] — hand these to the cmdlets if you prefer not to use type literals
 $schema.FindEntityType('sales.Order')
+($schema.Tables | Where-Object Name -eq 'Customer').Indexes            # indexes (IsUnique, columns, filter); .UniqueConstraints likewise
 ($schema.Tables | Where-Object Name -eq 'Customer').Columns | Format-Table Name, PropertyName, StoreType, ClrType, IsNullable, IsGeneratedOnAdd
 ```
 

@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Schema import reports unique constraints and indexes.** `SqlSchemaTable.UniqueConstraints`
+  and `SqlSchemaTable.Indexes` (name, columns, `IsUnique`, filter) carry what the provider's
+  catalogue reader already sees, so a consumer building its own schema model from the import
+  no longer needs a separate catalogue query for them.
+- **Unmapped columns stay visible.** A column whose store type neither the provider nor the ANSI
+  fallback can map is still listed in `SqlSchemaTable.Columns` (`IsMappedToProperty = false`,
+  `ClrType = object`) instead of vanishing from the table description; it is just not emitted as
+  an entity property. `UnmappedColumns` keeps naming them for the warning.
+
 ### Removed
 - **BREAKING — the `Sql` prefix is gone from three loader types.**
   `SqlExtensionLoader`, `SqlExtensionTrustStore` and `SqlExtensionLoadContext` are now
