@@ -57,6 +57,11 @@ failing the import. See [extensibility.md](./extensibility.md).
 
 ## Define an entity type
 
+> **Already have a database?** Skip this section: `Import-PSSqlRepositorySchema Sqlite -Path .\app.db`
+> emits the entity types from the existing tables and registers them, and
+> `Connect-PSSqlRepository … -ImportSchema` does both in one step. See
+> [`database-first.md`](database-first.md).
+
 Everything persisted through PSSqlRepository implements `IEntity[TKey]`. The module registers
 `IEntity` as a type accelerator on import, so no `using namespace` is needed.
 

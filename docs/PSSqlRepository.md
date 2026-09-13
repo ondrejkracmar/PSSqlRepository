@@ -5,7 +5,7 @@ HelpInfoUri:
 Locale: en-US
 Module Guid: a4f5e3c1-9d6b-4d2a-8e7f-3b5c2a1d8e90
 Module Name: PSSqlRepository
-ms.date: 08/16/2026
+ms.date: 09/13/2026
 PlatyPS schema version: 2024-05-01
 title: PSSqlRepository Module
 ---
@@ -47,6 +47,10 @@ PSSqlRepository: PowerShell + EF Core repository module with pluggable SQL provi
 {{ Fill in the Synopsis }}
 
 ### [Get-PSSqlRepositorySession](Get-PSSqlRepositorySession.md)
+
+{{ Fill in the Synopsis }}
+
+### [Import-PSSqlRepositorySchema](Import-PSSqlRepositorySchema.md)
 
 {{ Fill in the Synopsis }}
 

@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 08/16/2026
+ms.date: 09/13/2026
 PlatyPS schema version: 2024-05-01
 title: Connect-PSSqlRepository
 ---
@@ -20,20 +20,22 @@ title: Connect-PSSqlRepository
 ### ConnectionString (Default)
 
 ```
-Connect-PSSqlRepository [-ProviderName] <string> [-AuthMode <string>] [-WhatIf] [-Confirm]
+Connect-PSSqlRepository [-ProviderName] <string> [-AuthMode <string>] [-ImportSchema] [-WhatIf]
+ [-Confirm]
 ```
 
 ### IntegratedSecurity
 
 ```
-Connect-PSSqlRepository [-ProviderName] <string> [-AuthMode <string>] [-WhatIf] [-Confirm]
+Connect-PSSqlRepository [-ProviderName] <string> [-AuthMode <string>] [-ImportSchema] [-WhatIf]
+ [-Confirm]
 ```
 
 ### Credential
 
 ```
 Connect-PSSqlRepository [-ProviderName] <string> -Credential <pscredential> [-AuthMode <string>]
- [-WhatIf] [-Confirm]
+ [-ImportSchema] [-WhatIf] [-Confirm]
 ```
 
 ## ALIASES
@@ -121,6 +123,27 @@ ParameterSets:
 - Name: Credential
   Position: Named
   IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -ImportSchema
+
+{{ Fill ImportSchema Description }}
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
   ValueFromPipeline: false
   ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false

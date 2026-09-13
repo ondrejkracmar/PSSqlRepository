@@ -6,10 +6,10 @@ Locale: en-US
 Module Name: PSSqlRepository
 ms.date: 09/13/2026
 PlatyPS schema version: 2024-05-01
-title: Get-PSSqlRepositoryEntity
+title: Import-PSSqlRepositorySchema
 ---
 
-# Get-PSSqlRepositoryEntity
+# Import-PSSqlRepositorySchema
 
 ## SYNOPSIS
 
@@ -17,19 +17,28 @@ title: Get-PSSqlRepositoryEntity
 
 ## SYNTAX
 
-### List (Default)
+### ConnectionString (Default)
 
 ```
-Get-PSSqlRepositoryEntity [-EntityType] <type> [-Skip <int>] [-Top <int>] [-Where <scriptblock>]
- [-Filter <string>] [-OrderBy <string[]>] [-Property <string[]>] [-AsNoTracking]
- [-Include <string[]>] [-IncludeAll] [-SuppressUnboundedWarning] [-CommandTimeout <int>]
+Import-PSSqlRepositorySchema [-ProviderName] <string> [-AuthMode <string>] [-Schema <string[]>]
+ [-Table <string[]>] [-ExcludeTable <string[]>] [-IncludeView] [-Namespace <string>] [-NoRegister]
+ [-WhatIf] [-Confirm]
 ```
 
-### ById
+### IntegratedSecurity
 
 ```
-Get-PSSqlRepositoryEntity [-EntityType] <type> [-Id] <Object> [-AsNoTracking] [-Include <string[]>]
- [-IncludeAll] [-SuppressUnboundedWarning] [-CommandTimeout <int>]
+Import-PSSqlRepositorySchema [-ProviderName] <string> [-AuthMode <string>] [-Schema <string[]>]
+ [-Table <string[]>] [-ExcludeTable <string[]>] [-IncludeView] [-Namespace <string>] [-NoRegister]
+ [-WhatIf] [-Confirm]
+```
+
+### Credential
+
+```
+Import-PSSqlRepositorySchema [-ProviderName] <string> -Credential <pscredential>
+ [-AuthMode <string>] [-Schema <string[]>] [-Table <string[]>] [-ExcludeTable <string[]>]
+ [-IncludeView] [-Namespace <string>] [-NoRegister] [-WhatIf] [-Confirm]
 ```
 
 ## ALIASES
@@ -49,9 +58,106 @@ This cmdlet has the following aliases,
 
 ## PARAMETERS
 
-### -AsNoTracking
+### -AuthMode
 
-{{ Fill AsNoTracking Description }}
+{{ Fill AuthMode Description }}
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: ConnectionString
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+- Name: IntegratedSecurity
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+- Name: Credential
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Confirm
+
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases:
+- cf
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Credential
+
+{{ Fill Credential Description }}
+
+```yaml
+Type: System.Management.Automation.PSCredential
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: Credential
+  Position: Named
+  IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -ExcludeTable
+
+{{ Fill ExcludeTable Description }}
+
+```yaml
+Type: System.String[]
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -IncludeView
+
+{{ Fill IncludeView Description }}
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -70,12 +176,12 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -CommandTimeout
+### -Namespace
 
-{{ Fill CommandTimeout Description }}
+{{ Fill Namespace Description }}
 
 ```yaml
-Type: System.Nullable`1[System.Int32]
+Type: System.String
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -91,12 +197,33 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -EntityType
+### -NoRegister
 
-{{ Fill EntityType Description }}
+{{ Fill NoRegister Description }}
 
 ```yaml
-Type: System.Type
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -ProviderName
+
+{{ Fill ProviderName Description }}
+
+```yaml
+Type: System.String
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -112,51 +239,9 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -Filter
+### -Schema
 
-{{ Fill Filter Description }}
-
-```yaml
-Type: System.String
-DefaultValue: ''
-SupportsWildcards: false
-Aliases: []
-ParameterSets:
-- Name: List
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -Id
-
-{{ Fill Id Description }}
-
-```yaml
-Type: System.Object
-DefaultValue: ''
-SupportsWildcards: false
-Aliases: []
-ParameterSets:
-- Name: ById
-  Position: 1
-  IsRequired: true
-  ValueFromPipeline: true
-  ValueFromPipelineByPropertyName: true
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -Include
-
-{{ Fill Include Description }}
+{{ Fill Schema Description }}
 
 ```yaml
 Type: System.String[]
@@ -175,143 +260,39 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -IncludeAll
+### -Table
 
-{{ Fill IncludeAll Description }}
+{{ Fill Table Description }}
+
+```yaml
+Type: System.String[]
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -WhatIf
+
+Runs the command in a mode that only reports what would happen without performing the actions.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
-Aliases: []
+Aliases:
+- wi
 ParameterSets:
 - Name: (All)
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -OrderBy
-
-{{ Fill OrderBy Description }}
-
-```yaml
-Type: System.String[]
-DefaultValue: ''
-SupportsWildcards: false
-Aliases: []
-ParameterSets:
-- Name: List
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -Property
-
-{{ Fill Property Description }}
-
-```yaml
-Type: System.String[]
-DefaultValue: ''
-SupportsWildcards: false
-Aliases: []
-ParameterSets:
-- Name: List
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -Skip
-
-{{ Fill Skip Description }}
-
-```yaml
-Type: System.Nullable`1[System.Int32]
-DefaultValue: ''
-SupportsWildcards: false
-Aliases: []
-ParameterSets:
-- Name: List
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -SuppressUnboundedWarning
-
-{{ Fill SuppressUnboundedWarning Description }}
-
-```yaml
-Type: System.Management.Automation.SwitchParameter
-DefaultValue: ''
-SupportsWildcards: false
-Aliases: []
-ParameterSets:
-- Name: (All)
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -Top
-
-{{ Fill Top Description }}
-
-```yaml
-Type: System.Nullable`1[System.Int32]
-DefaultValue: ''
-SupportsWildcards: false
-Aliases: []
-ParameterSets:
-- Name: List
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -Where
-
-{{ Fill Where Description }}
-
-```yaml
-Type: System.Management.Automation.ScriptBlock
-DefaultValue: ''
-SupportsWildcards: false
-Aliases: []
-ParameterSets:
-- Name: List
   Position: Named
   IsRequired: false
   ValueFromPipeline: false
@@ -331,13 +312,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.Object
-
-{{ Fill in the Description }}
-
 ## OUTPUTS
 
-### System.Object
+### PSSqlRepository.Core.Schema.SqlSchemaImportResult
 
 {{ Fill in the Description }}
 

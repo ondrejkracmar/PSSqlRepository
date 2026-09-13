@@ -116,6 +116,13 @@
           </dev:type>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>ImportSchema</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>WhatIf</maml:name>
           <maml:description />
           <dev:type>
@@ -146,6 +153,13 @@
           <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
           <dev:type>
             <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>ImportSchema</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
           </dev:type>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
@@ -187,6 +201,13 @@
           <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
           <dev:type>
             <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>ImportSchema</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
           </dev:type>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
@@ -243,6 +264,15 @@
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
           <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>ImportSchema</maml:name>
+        <maml:description>
+          <maml:para>Database-first: reads the target database's schema first, emits one entity type per table and registers them as this provider's repository context, then connects. Equivalent to Import-PSSqlRepositorySchema (all tables) followed by Connect-PSSqlRepository with the same parameters. Replaces any context registered for the provider. See Import-PSSqlRepositorySchema for filtering and the schema report.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
         </dev:type>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
@@ -1481,6 +1511,278 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Import-PSSqlRepositorySchema</command:name>
+      <maml:description>
+        <maml:para>Database-first: reads the schema of an existing database, emits one entity type per table and registers them as the provider's repository context.</maml:para>
+      </maml:description>
+      <command:verb>Import</command:verb>
+      <command:noun>PSSqlRepositorySchema</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>The database-first counterpart of Register-PSSqlRepositoryEntity. Instead of writing PowerShell classes, point the cmdlet at a database that already exists: it reads the catalogue through the EF Core provider's own reverse-engineering component, emits a public CLR class per table at run time (a property per column, named after the column; the primary key wired to the IEntity[TKey] contract the entity cmdlets require) and registers the set exactly as Register-PSSqlRepositoryEntity would. A following Connect-PSSqlRepository with the same connection parameters then serves Get-, Save- and Remove-PSSqlRepositoryEntity against those tables. Connect-PSSqlRepository -ImportSchema performs both steps at once.</maml:para>
+      <maml:para>Takes the same provider connect parameters as Connect-PSSqlRepository (-Path, -Server/-Database, -ConnectionString, ...) and the same authentication surface. Tables with a composite primary key, tables without a primary key and views are reported as skipped with a reason; columns whose store type cannot be mapped are listed per table and left off the entity. The registration replaces any context previously registered for the provider; -NoRegister reads and emits without registering.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Import-PSSqlRepositorySchema</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+          <maml:name>ProviderName</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AuthMode</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Credential</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">pscredential</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Management.Automation.PSCredential</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Schema</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="true">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Table</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="true">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>ExcludeTable</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="true">string[]</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String[]</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>IncludeView</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Namespace</maml:name>
+          <maml:description />
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+          <dev:type>
+            <maml:name>System.String</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>NoRegister</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
+        <maml:name>ProviderName</maml:name>
+        <maml:description>
+          <maml:para>Provider to read through: Sqlite, SqlServer, or an installed extension such as DuckDB. The provider's own connect parameters (-Path, -Server/-Database, -ConnectionString, ...) become available once it is named.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>AuthMode</maml:name>
+        <maml:description>
+          <maml:para>Authentication mode, same values and semantics as Connect-PSSqlRepository (ConnectionString, IntegratedSecurity, UserPassword).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Credential</maml:name>
+        <maml:description>
+          <maml:para>Credential for UserPassword authentication. Handled exactly as by Connect-PSSqlRepository; on SQL Server the password never enters the connection string.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.Management.Automation.PSCredential</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCredential</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Schema</maml:name>
+        <maml:description>
+          <maml:para>Database schemas to import (dbo, sales, ...). Default: every schema. Ignored by providers without schemas (SQLite).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Table</maml:name>
+        <maml:description>
+          <maml:para>Tables to import, as bare names (Customer) or schema-qualified names (sales.Order), matched case-insensitively. Default: every table.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>ExcludeTable</maml:name>
+        <maml:description>
+          <maml:para>Tables to leave out, same syntax as -Table.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>IncludeView</maml:name>
+        <maml:description>
+          <maml:para>Lists views in the result. Views have no primary key, so they are reported as skipped; the switch exists so the report is complete.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Namespace</maml:name>
+        <maml:description>
+          <maml:para>CLR namespace for the emitted types. Default: none, so PowerShell can write [Customer]. Set it when two databases with overlapping table names are imported into one session and address the types as [Shop.Customer].</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>NoRegister</maml:name>
+        <maml:description>
+          <maml:para>Reads the schema and emits the types but does not register them as the provider's context. Use it to inspect a database or to keep an existing registration.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Shows what would happen if the cmdlet runs. The cmdlet is not run.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para />
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>PSSqlRepository.Core.Schema.SqlSchemaImportResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>One object describing every table the reader saw: Tables (with Columns, PrimaryKey, ForeignKeys, EntityType or SkipReason), Imported, Skipped, EntityTypes and FindEntityType(name).</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Importing the same table again returns the same type, so [Customer] keeps resolving across re-runs; when a table's shape changed a new type is emitted and $result.FindEntityType('Customer') is the unambiguous handle. Composite keys, keyless tables, views and navigation properties are not emitted in this version.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+        <dev:code>$schema = Import-PSSqlRepositorySchema Sqlite -Path .\shop.db
+$null = Connect-PSSqlRepository Sqlite -Path .\shop.db
+Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
+[Customer]@{ Name = 'Acme' } | Save-PSSqlRepositoryEntity -PassThru</dev:code>
+        <dev:remarks>
+          <maml:para>Imports every table of an existing SQLite file, connects, then queries and inserts through the emitted [Customer] type.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+        <dev:code>Import-PSSqlRepositorySchema SqlServer -Server '.\SQLEXPRESS' -Database Shop -Schema dbo, sales -Table Customer, 'sales.Order' -Namespace Shop</dev:code>
+        <dev:remarks>
+          <maml:para>Imports two tables from two schemas of a SQL Server database as [Shop.Customer] and [Shop.Order].</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+        <dev:code>(Import-PSSqlRepositorySchema DuckDB -Path .\analytics.duckdb -NoRegister).Tables | Format-Table FullName, EntityType, PrimaryKey, SkipReason</dev:code>
+        <dev:remarks>
+          <maml:para>Inspects a DuckDB database through the DuckDB extension without registering anything.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Connect-PSSqlRepository</maml:linkText>
+        <maml:uri />
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Register-PSSqlRepositoryEntity</maml:linkText>
         <maml:uri />
       </maml:navigationLink>
     </command:relatedLinks>

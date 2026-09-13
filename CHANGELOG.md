@@ -20,6 +20,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   type. The extension contract version stays at 1.0.0.
 
 ### Added
+- **Database-first: `Import-PSSqlRepositorySchema` and `Connect-PSSqlRepository -ImportSchema`.**
+  Point the module at a database that already exists and it emits one entity class per table
+  at run time (Reflection.Emit, no compilation step) and registers them the way
+  `Register-PSSqlRepositoryEntity` registers hand-written classes. `Get-/Save-/Remove-
+  PSSqlRepositoryEntity`, `-Filter`, `-Include`, transactions and the PSObject converter then
+  work on those tables unchanged: `Import-PSSqlRepositorySchema Sqlite -Path .\shop.db`, then
+  `Get-PSSqlRepositoryEntity -EntityType ([Customer])`.
+
+  The emitted class mirrors the table: a public property per column with the column's name
+  (`CustomerId` stays `CustomerId`; names that are not identifiers become `Order_Line` /
+  `Unit_Price`, mapped back to the real names), nullable value types for nullable columns, and
+  the `IEntity[TKey]` contract implemented explicitly against the primary-key column so the
+  cmdlets' key handling (`-Id`, insert-vs-update, batched lookups) needs no change. Table and
+  column names, store types, required-ness, identity / default / computed columns are configured
+  on the EF model from the catalogue, so writes go back exactly.
+
+  The catalogue is read through the EF Core provider's own `IDatabaseModelFactory` (the piece
+  behind `dotnet ef dbcontext scaffold`, shipped in `Microsoft.EntityFrameworkCore.Relational`
+  and the provider assemblies — no design-time package). SQL Server and SQLite name theirs;
+  for an **extension** the factory is discovered in the provider's EF assembly, so the
+  published DuckDB provider gets database-first **without a rebuild** (verified end to end).
+  Providers that resolve store types only by CLR type fall back to a built-in ANSI table
+  (`INTEGER`, `BIGINT`, `DOUBLE`, `DECIMAL(p,s)`, `BOOLEAN`, `VARCHAR`, `TIMESTAMP`, `UUID`, …).
+
+  Filters: `-Schema`, `-Table` (bare or `schema.table`), `-ExcludeTable`, `-IncludeView`;
+  `-Namespace` prefixes the types (`[Shop.Customer]`) when two databases overlap; `-NoRegister`
+  reads and emits without touching the provider registration. The result object lists every
+  table with its columns, keys, foreign keys, the emitted `EntityType` or a `SkipReason`.
+  Tables with a composite primary key, tables without a key and views are reported as skipped
+  (the entity cmdlets need one key value per entity); columns without a CLR mapping are listed
+  in `UnmappedColumns` and warned about, never dropped silently.
+
+  Core additions are purely additive and virtual (`SqlProviderDefinitionBase.DatabaseModelFactoryType`,
+  `GetEfProviderConfigurator(ISqlConnectContext)`, the `PSSqlRepository.Core.Schema` namespace,
+  an optional `SchemaModelConfigurationExtension` that `DynamicEntityDbContext` applies only
+  when present). No contract assembly changed; the extension contract version stays at 1.0.0.
+  See `docs/database-first.md`.
 - **The plugin load context now follows the .NET plugin model.** It builds an
   `AssemblyDependencyResolver` from the extension's own `.deps.json`, so an extension resolves
   the exact versions its build resolved; it gets one context **per extension** rather than per

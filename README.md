@@ -60,6 +60,21 @@ Import-Module PSSqlRepository
 A full model with foreign keys, graph saves, and joined queries is in
 [`docs/entity-model.md`](docs/entity-model.md).
 
+### Already have a database?
+
+Skip the classes: `Import-PSSqlRepositorySchema` reads an existing database and emits the entity
+types for you (database-first). Every other command then works on those tables unchanged.
+
+```powershell
+$null = Import-PSSqlRepositorySchema Sqlite -Path .\shop.db     # one type per table: [Customer], [Order_Line], ...
+$null = Connect-PSSqlRepository Sqlite -Path .\shop.db          # or: Connect-PSSqlRepository Sqlite -Path .\shop.db -ImportSchema
+Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
+[Customer]@{ Name = 'Acme' } | Save-PSSqlRepositoryEntity -PassThru
+```
+
+See [`docs/database-first.md`](docs/database-first.md) for what is emitted, what is skipped and how
+extensions get it for free.
+
 ## Main commands
 
 | Command | Purpose |
@@ -70,6 +85,7 @@ A full model with foreign keys, graph saves, and joined queries is in
 | `Get-PSSqlRepositorySession` | Inspect the current session |
 | `Register-PSSqlRepositoryEntity` | Build a DbContext dynamically from PowerShell entity types |
 | `Register-PSSqlRepositoryContext` | Register a custom DbContext instead |
+| `Import-PSSqlRepositorySchema` | Database-first: emit entity types from an existing database and register them |
 | `Get-PSSqlRepositoryEntity` | Query entities |
 | `Save-PSSqlRepositoryEntity` | Persist changes (Add / Update / Upsert) |
 | `Update-PSSqlRepositoryEntity` | `Save … -Mode Update` under a discoverable verb |
@@ -146,6 +162,7 @@ To author one, reference the `PSSqlRepository.Extensions.Sdk` package — see
 |---|---|
 | [`docs/getting-started.md`](docs/getting-started.md) | Install, first session, CRUD, transactions |
 | [`docs/entity-model.md`](docs/entity-model.md) | Full worked model: Company / Person / Customer with foreign keys |
+| [`docs/database-first.md`](docs/database-first.md) | Database-first: import an existing schema as entity types |
 | [`docs/architecture.md`](docs/architecture.md) | Layering and component responsibilities |
 | [`docs/extensibility.md`](docs/extensibility.md) | How extensions are discovered, trusted, installed |
 | [`docs/sdk.md`](docs/sdk.md) | Authoring a provider or authentication extension |
