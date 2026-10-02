@@ -27,6 +27,8 @@
         'Unregister-PSSqlRepositoryContext',
         'Register-PSSqlRepositoryEntity',
         'Import-PSSqlRepositorySchema',
+        'Compare-PSSqlRepositorySchema',
+        'Update-PSSqlRepositorySchema',
         'Get-PSSqlRepositoryEntity',
         'Save-PSSqlRepositoryEntity',
         'Remove-PSSqlRepositoryEntity',

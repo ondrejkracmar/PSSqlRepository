@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Get-PSSqlRepositoryExtensionToken
 ---
@@ -13,7 +13,7 @@ title: Get-PSSqlRepositoryExtensionToken
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Reads the strong-name public key token from a .NET assembly in the format used by extensions.trust.json.
 
 ## SYNTAX
 
@@ -30,13 +30,20 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+Reads the strong-name public key token from a .NET assembly in the format used by extensions.trust.json.
+
+Helper for administrators who need to trust a 3rd-party PSSqlRepository extension.
+It reads the assembly metadata WITHOUT loading it for execution and returns the lowercase 16-character hex public key token, suitable for pasting into extensions.trust.json under trustedPublicKeyTokens (the token the loader gates every plugin on — see ExtensionTrustPolicy).
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Get-PSSqlRepositoryExtensionToken -Path .\PSSqlRepository.Providers.DuckDB.dll
+
+### Example 2
+
+Get-ChildItem .\Providers\*.dll | Get-PSSqlRepositoryExtensionToken
 
 ## PARAMETERS
 
@@ -74,19 +81,20 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.String[]
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## OUTPUTS
 
 ### System.Management.Automation.PSObject
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Get-PSSqlRepositoryEntity
 ---
@@ -13,7 +13,7 @@ title: Get-PSSqlRepositoryEntity
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Streams entities from the active session's database to the pipeline.
 
 ## SYNTAX
 
@@ -39,19 +39,44 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+streams entities from the active session's database to the pipeline.
+Supports lookup by Id, paging (-Top/-Skip), server-side filtering (-Filter), sorting (-OrderBy) and column projection (-Property) — all three translate to SQL WHERE / ORDER BY / SELECT — plus client-side filtering via a System.Management.Automation.ScriptBlock (-Where) and read-only execution (-AsNoTracking).
+
+Also exposed as Get-PSSqlRepositoryItem for command-surface parity with the PSDataRepository module.
+The alias shares this single implementation so query behaviour cannot drift between the Entity and Item spellings.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Get-PSSqlRepositoryEntity -EntityType ([Customer])
+
+### Example 2
+
+Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Id 5
+
+### Example 3
+
+Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 100 -AsNoTracking
+
+### Example 4
+
+Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Filter "Name -like 'A*'" -OrderBy 'Name DESC' -Top 10
+
+### Example 5
+
+Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Filter "RowVersion -gt 3" -Property Id, Name
+
+### Example 6
+
+Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Where { $_.Name -like 'A*' }
 
 ## PARAMETERS
 
 ### -AsNoTracking
 
-{{ Fill AsNoTracking Description }}
+Retained for compatibility.
+Reads are now ALWAYS no-tracking (the cmdlet returns disconnected snapshots that are safe to mutate and re-Save), so this switch no longer changes behaviour.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -72,7 +97,9 @@ HelpMessage: ''
 
 ### -CommandTimeout
 
-{{ Fill CommandTimeout Description }}
+Per-invocation override (in seconds) for DbContext.Database.CommandTimeout.
+Use for one-off long-running queries (large scans, expensive includes) without bumping the provider-level default.
+0 disables the timeout entirely; set only when you have a sustained workload that justifies waiting indefinitely.
 
 ```yaml
 Type: System.Nullable`1[System.Int32]
@@ -93,7 +120,7 @@ HelpMessage: ''
 
 ### -EntityType
 
-{{ Fill EntityType Description }}
+The EntityType parameter.
 
 ```yaml
 Type: System.Type
@@ -114,7 +141,9 @@ HelpMessage: ''
 
 ### -Filter
 
-{{ Fill Filter Description }}
+Server-side filter using PowerShell comparison syntax, translated to a SQL WHERE clause via an EF Core expression tree.
+Supports -eq -ne -gt -ge -lt -le -like -notlike -in -notin -and -or -not, parentheses, dotted property paths ("Customer.Name") and literals ('text', numbers, $true, $false, $null).
+Unlike -Where, the filter runs in the database, so it composes correctly with -Top/-Skip paging.
 
 ```yaml
 Type: System.String
@@ -135,7 +164,7 @@ HelpMessage: ''
 
 ### -Id
 
-{{ Fill Id Description }}
+The Id parameter.
 
 ```yaml
 Type: System.Object
@@ -156,7 +185,9 @@ HelpMessage: ''
 
 ### -Include
 
-{{ Fill Include Description }}
+Names of navigation properties to eagerly load.
+Each entry is passed verbatim to EF.Functions.Include (string overload), so dotted paths like "Orders.Items" work for nested loads.
+Use this when piping the result into Save-PSSqlRepositoryEntity -IncludeNavigations so the merger has the full existing graph to diff against.
 
 ```yaml
 Type: System.String[]
@@ -177,7 +208,9 @@ HelpMessage: ''
 
 ### -IncludeAll
 
-{{ Fill IncludeAll Description }}
+Eagerly loads every navigation declared on the entity in the EF Core model (collections and references, one level deep).
+Convenient for ad-hoc inspection and for round-tripping into Save-PSSqlRepositoryEntity -IncludeNavigations.
+Combine with explicit -Include 'Lines.Foo' when you need deeper-than-one-level paths.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -198,7 +231,11 @@ HelpMessage: ''
 
 ### -OrderBy
 
-{{ Fill OrderBy Description }}
+Sort specification translated to a SQL ORDER BY.
+Each entry is a property path optionally followed by a direction: 'Name', 'Name DESC' or 'Name:desc'.
+Multiple entries become ThenBy chains.
+Dotted paths order by related columns.
+Applied before -Skip/-Top, so paging is stable.
 
 ```yaml
 Type: System.String[]
@@ -219,7 +256,9 @@ HelpMessage: ''
 
 ### -Property
 
-{{ Fill Property Description }}
+Projects only the named properties (SQL SELECT col1, col2) instead of loading full entities.
+Output objects are System.Management.Automation.PSObjects with one note property per requested path (dotted paths use the full path as the name).
+Mutually exclusive with -Include/-IncludeAll and tracking — the projected rows are detached values, not entities.
 
 ```yaml
 Type: System.String[]
@@ -240,7 +279,7 @@ HelpMessage: ''
 
 ### -Skip
 
-{{ Fill Skip Description }}
+The Skip parameter.
 
 ```yaml
 Type: System.Nullable`1[System.Int32]
@@ -261,7 +300,8 @@ HelpMessage: ''
 
 ### -SuppressUnboundedWarning
 
-{{ Fill SuppressUnboundedWarning Description }}
+Suppresses the unbounded-query warning that Get-PSSqlRepositoryEntity emits when neither -Top nor -Skip is supplied.
+Use this for intentionally unbounded scans (small lookup tables, ad-hoc one-shots) to keep pipelines quiet in production.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -282,7 +322,7 @@ HelpMessage: ''
 
 ### -Top
 
-{{ Fill Top Description }}
+The Top parameter.
 
 ```yaml
 Type: System.Nullable`1[System.Int32]
@@ -303,7 +343,9 @@ HelpMessage: ''
 
 ### -Where
 
-{{ Fill Where Description }}
+Client-side filter evaluated after the database Skip/Top page has been fetched.
+With -Top N -Where { … } you may receive fewer than N results because filtering happens on the materialised page, not in the database.
+Push predicates that affect the returned count down to the database via a custom repository method.
 
 ```yaml
 Type: System.Management.Automation.ScriptBlock
@@ -333,19 +375,20 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.Object
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## OUTPUTS
 
 ### System.Object
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

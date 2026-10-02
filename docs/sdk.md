@@ -129,6 +129,23 @@ public override string ResolveConnectionString(ISqlConnectContext context)
 }
 ```
 
+### Schema management
+
+`SqlProviderExtension` advertises `SqlProviderCapabilities.SchemaManagement` by default, which is
+what `Connect-PSSqlRepository -EnsureCreated` / `-Migrate`, `Compare-PSSqlRepositorySchema` and
+`Update-PSSqlRepositorySchema` check before touching a database. Nothing else is required: the
+migrator uses the EF Core provider's own migrations SQL generator, migration command executor and
+`IDatabaseModelFactory`, which every mainstream EF provider ships, and `-Migrate` reaches the
+provider through the connect context by name (`SqlProviderDefinitionBase.MigrateParameterName`),
+so an extension built against the current SDK gains all of it without a rebuild.
+
+Opt out when the EF provider has no usable migrations pipeline by clearing the flag from
+`Capabilities`; the cmdlets then fail with a clear message instead of running. Pin the catalogue
+reader explicitly, if discovery picks the wrong one, by overriding `DatabaseModelFactoryType`.
+Override `MigrateAfterConnect` only to change what `-Migrate` does after the session is created.
+The history table `__PSSqlRepositoryMigrations` is created through the same SQL generator, so a
+provider needs no special support for it.
+
 ### Native dependencies
 
 Extensions load through a custom `AssemblyLoadContext`, and the default P/Invoke probe does **not**
@@ -236,6 +253,7 @@ moves only when the public API of the contract assemblies moves. See
 - Build the connection string with a builder, not string concatenation
 - Advertise `SupportedAuthModes` explicitly
 - Resolve native dependencies explicitly if the engine has any
+- Clear `SchemaManagement` from `Capabilities` if the EF provider cannot generate migrations SQL
 
 **Authentication**
 

@@ -55,20 +55,31 @@ An extension carrying no contract attribute at all is treated as `1.0` and still
 
 ## The trust model
 
-The loader **fails closed**. It instantiates a plugin only when the plugin is strong-named *and* its
-public key token is one of:
+The loader **fails closed** and checks two things before any code from a plugin runs.
+
+**Identity.** The plugin must be strong-named, and its public key token must be one of:
 
 - the module's own token (implicitly trusted — the trust anchor, and what the in-box providers are
   signed with), or
 - a token listed under `trustedPublicKeyTokens` in `extensions.trust.json`.
 
+**Content.** A third-party plugin (any token other than the module's own) must also match the
+SHA-256 pinned for its file under `trustedFileHashes`. `Install-PSSqlRepositoryExtension -Trust`
+writes that pin. The token alone is not authentication: the runtime does not verify strong-name
+signatures, and a public key is public, so any file can be built to carry a trusted token. The
+pin ties trust to the bytes you actually installed.
+
 ```jsonc
 // <module>\extensions.trust.json
 {
-  "_comment": "Each entry is the lowercase hex public key token (16 hex chars) of an SNK trusted to author plugins.",
+  "_comment": "trustedPublicKeyTokens: lowercase hex public key tokens (16 hex chars) of SNKs trusted to author plugins. trustedFileHashes: SHA-256 of each installed third-party extension, keyed by path relative to this file; written by Install-PSSqlRepositoryExtension -Trust. developmentMode: true disables hash pinning.",
   "trustedPublicKeyTokens": [
     "7c0a159ccacb5b48"
-  ]
+  ],
+  "trustedFileHashes": {
+    "bin/net8.0/Providers/PSSqlRepository.Providers.DuckDB.dll": "9f2c…e1",
+    "bin/net10.0/Providers/PSSqlRepository.Providers.DuckDB.dll": "4a71…c8"
+  }
 }
 ```
 
@@ -79,12 +90,38 @@ happens once per process.
 Consequences worth internalising:
 
 - **Unsigned extensions never load.** Not a warning; a rejection.
-- **Trust is per signing key, not per file.** Adding a token authorises every present and future
-  assembly signed with that key. That is why it is never granted implicitly.
+- **A token authorises a publisher; a pin authorises a file.** Adding a token lets every present
+  and future assembly signed with that key *pass the identity check*; only files whose hash is
+  pinned actually load. That is why neither is granted implicitly.
+- **An updated extension must be re-trusted.** Replacing a DLL changes its hash, so the loader
+  refuses it with *"its content changed since it was trusted"* until you re-run
+  `Install-PSSqlRepositoryExtension -Trust` (which overwrites the pin). Overwriting a trusted DLL
+  by hand is exactly what the pin exists to catch.
+- **The pin covers everything the extension brings.** `-Trust` pins the extension assembly and
+  every file it installed: the libraries in its private folder, the shared dependencies it put in
+  `bin\<tfm>\`, the native engines it staged under `runtimes\`. The loader verifies that whole
+  set before the extension is loaded and refuses the extension if any file is missing a pin or
+  has changed, naming the file (*"its dependency 'X' changed since it was trusted"*). The
+  extension's load context repeats the check for every file it actually loads, so a swap after
+  import is caught too. The host's own files are not pinned; they are protected the way the
+  module itself is (file ACLs, Authenticode of the published package).
+- **Pins travel with the module folder.** Keys are paths relative to `extensions.trust.json`, so a
+  copied or relocated module keeps its trust. A new module version has a fresh folder and a fresh
+  trust file: re-install the extensions into it.
+- **Trust files from before hash pinning keep working.** A file with no `trustedFileHashes`
+  section is treated as token-only once: on the first load the loader pins every third-party
+  extension it finds trusted by token and adds the section. From then on content is verified.
+  (If the module folder is read-only the pin cannot be written; the extension stays trusted by
+  token and the diagnostic log says so — run `Install-PSSqlRepositoryExtension -Trust` from an
+  elevated shell to pin it.)
+- **`"developmentMode": true`** switches pinning off for that module (token-only trust, as
+  before). Use it on a developer machine where the extension is rebuilt all day; never in
+  production. The diagnostic log notes it on every load.
 - **If the module's own Core assembly is not strong-named, nothing loads at all** — there is no
-  anchor, so trusting anything would be a blind decision.
-- A malformed `extensions.trust.json` contributes no tokens and is reported in the diagnostic log,
-  rather than silently widening or narrowing trust.
+  anchor, so trusting anything would be a blind decision. In-box plugins carry that token and are
+  never pinned.
+- A malformed `extensions.trust.json` contributes no tokens and no pins and is reported in the
+  diagnostic log, rather than silently widening or narrowing trust.
 
 Read a candidate's token without installing it:
 
@@ -126,8 +163,9 @@ missing provider after the next restart. It also stages the extension's dependen
 refuses to overwrite a shared dependency with a different **major** version unless you pass
 `-Force`.
 
-Without `-Trust` the extension is installed and a warning says it will not load. Restart PowerShell,
-then confirm:
+`-Trust` does two things: it adds the publisher's token to `trustedPublicKeyTokens` and pins the
+SHA-256 of every file it just installed under `trustedFileHashes`. Without `-Trust` the extension
+is installed and a warning says it will not load. Restart PowerShell, then confirm:
 
 ```powershell
 Get-PSSqlRepositoryExtension | Format-Table Name, Subfolder, Status, Registered, Reason
@@ -142,6 +180,9 @@ Start there; the import itself succeeds even when every extension is rejected.
 | `Reason` | Meaning | Fix |
 |---|---|---|
 | `its public key token '…' is not trusted` | Installed, signed, but the key is not authorised | Reinstall with `-Trust`, or add the token to `extensions.trust.json`, then restart |
+| `its content changed since it was trusted (pinned SHA-256 …, actual …)` | The file is not the one that was trusted: updated by hand, or tampered with | If the update is intended, `Install-PSSqlRepositoryExtension … -Trust` again; otherwise investigate before trusting |
+| `its SHA-256 is not pinned in 'extensions.trust.json'` | The key is trusted but this file was copied in without `Install-PSSqlRepositoryExtension -Trust` | Reinstall with `-Trust`, or set `"developmentMode": true` on a developer machine |
+| `its dependency 'X' changed since it was trusted` / `its dependency 'X' is not pinned` | A library or native asset the extension loads is not the one `-Trust` pinned, or was copied in by hand | Reinstall with `-Trust` if the change is intended; otherwise investigate the file |
 | `it is not strong-named` | Built without a signing key | Rebuild with `<SignAssembly>true</SignAssembly>` |
 | `contract incompatible: it was built against contract …` | Contract major moved | Rebuild against the current SDK |
 | `missing [assembly: PSSqlRepositoryExtension]` | No discovery marker | Add the assembly attribute |
@@ -168,6 +209,10 @@ deployment may legitimately ship one half of a pair:
 ```powershell
 Uninstall-PSSqlRepositoryExtension -Name PSSqlRepository.Providers.DuckDB
 ```
+
+The pinned hashes of the removed files (the extension, its private folder, the dependencies and
+native assets only it introduced) are dropped from `extensions.trust.json`; the publisher's
+token stays unless you pass `-RemoveTrust`, which affects every extension signed with that key.
 
 Remove extensions **before** removing PSSqlRepository itself. `Uninstall-PSSqlRepositoryExtension`
 is a cmdlet of the host module; once the module is gone there is nothing left to clean up with, and

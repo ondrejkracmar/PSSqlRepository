@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Install-PSSqlRepositoryExtension
 ---
@@ -13,7 +13,7 @@ title: Install-PSSqlRepositoryExtension
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Installs a PSSqlRepository extension into the installed module from a local artifact.
 
 ## SYNTAX
 
@@ -45,13 +45,23 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+Installs a PSSqlRepository extension into the installed module from a local artifact.
+
+Places an extension's assemblies into the module's bin\{TFM}\{Subfolder}\ layout — the only location the loader scans — and copies its dependencies alongside the host assemblies where the plugin load context can resolve them.
+The source may be a .zip from publish-extension.ps1, a .nupkg, a folder, or a single .dll.
+
+Before anything is written, every candidate assembly is inspected the same way the loader inspects it: it must be strong-named, and its declared contract version must be one this module can satisfy.
+Catching an incompatible extension here turns what would otherwise be a silently missing provider after the next restart into an error at install time.
+
+Trust is deliberately NOT granted automatically.
+An extension signed with a key the module does not already trust is installed but will not load until its public key token is added to extensions.trust.json; pass -Trust to do that as part of the install, which is an explicit decision to let that publisher's code run.
+-Trust also pins the SHA-256 of every file it installs under trustedFileHashes: a third-party extension loads only while its content matches the pin, so a DLL replaced by hand must be installed with -Trust again.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Install-PSSqlRepositoryExtension -Path .\PSSqlRepository.Providers.DuckDB-1.0.0.zip -Trust
 
 ## PARAMETERS
 
@@ -100,7 +110,7 @@ HelpMessage: ''
 
 ### -FromModule
 
-Name of an installed PowerShell module: an extension payload module, or a PSSqlRepository version to migrate extensions from.
+Name of an installed PowerShell module carrying the extension payload.
 
 ```yaml
 Type: System.String
@@ -121,7 +131,8 @@ HelpMessage: ''
 
 ### -ModuleRoot
 
-Module root to install into. Defaults to the running module.
+Module root to install into.
+Defaults to the running module.
 
 ```yaml
 Type: System.String
@@ -205,7 +216,8 @@ HelpMessage: ''
 
 ### -Subfolder
 
-Plugin subfolder. Only needed when the assembly carries no SDK metadata.
+Plugin subfolder.
+Only needed when the assembly carries no SDK metadata.
 
 ```yaml
 Type: System.String
@@ -226,7 +238,7 @@ HelpMessage: ''
 
 ### -Trust
 
-Also trust the extension's signing key by adding its token to extensions.trust.json.
+Also trust the extension: add its signing key's token to extensions.trust.json and pin the SHA-256 of the installed files.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -307,13 +319,14 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.Management.Automation.PSObject
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

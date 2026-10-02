@@ -42,6 +42,18 @@ This split keeps PowerShell ergonomics available while still allowing efficient 
 
 A session owns the scoped service provider, DbContext, unit of work, and transaction handling. The `SqlSessionManager` exposes the current active session to cmdlets.
 
+## Schema model
+
+The EF Core model is built at runtime from the registered entity types (`DynamicEntityDbContext`)
+or from an existing database (`Schema/DatabaseSchemaImporter`, database-first). Schema changes are
+confined to `Schema/SchemaMigrator`: `-EnsureCreated` creates the database or missing tables, and
+`Compare-`/`Update-PSSqlRepositorySchema` and `Connect -Migrate` diff the live catalogue (read
+through the provider's `IDatabaseModelFactory` and rebuilt as a snapshot-style model by
+`CatalogueModelBuilder`) against the model with EF Core's own `IMigrationsModelDiffer`, classify the
+operations (`SchemaOperationClassifier`: additive, destructive, noise) and run the additive ones
+through the provider's migrations SQL generator, recording each run in `__PSSqlRepositoryMigrations`.
+See [schema-migration.md](./schema-migration.md).
+
 ## Extensibility model
 
 The SDK assembly is the published extension boundary for external provider authors. Third-party packages should depend on the SDK and implement provider/auth contracts there instead of referencing internal module projects directly.

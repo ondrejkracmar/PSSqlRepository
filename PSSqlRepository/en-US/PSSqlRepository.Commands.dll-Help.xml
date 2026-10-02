@@ -2,15 +2,124 @@
 <helpItems xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" schema="maml" xmlns="http://msh">
   <command:command>
     <command:details>
+      <command:name>Compare-PSSqlRepositorySchema</command:name>
+      <maml:description>
+        <maml:para>Reports how the connected database differs from the registered entity model, without changing anything.</maml:para>
+      </maml:description>
+      <command:verb>Compare</command:verb>
+      <command:noun>PSSqlRepositorySchema</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Reads the live catalogue of the connected database through the provider's own reverse-engineering component, rebuilds it as a model and compares it with the registered entity model using EF Core's model differ. The result lists every operation Update-PSSqlRepositorySchema would run (Status Planned) or hold back (SkippedDestructive, SkippedDependent), formatting-only differences it ignores (Suppressed), the SQL script for the applicable operations, the tables the model does not map (UnmanagedTables, never touched) and the newest rows of the __PSSqlRepositoryMigrations history table.</maml:para>
+      <maml:para>Requires an open session (Connect-PSSqlRepository) and a provider that advertises the SchemaManagement capability. Refuses to run while an explicit transaction (Start-PSSqlRepositoryTransaction) is open.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Compare-PSSqlRepositorySchema</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AllowDestructive</maml:name>
+          <maml:description></maml:description>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>HistoryCount</maml:name>
+          <maml:description></maml:description>
+          <command:parameterValue required="true" variableLength="false">int32</command:parameterValue>
+          <dev:type>
+            <maml:name>System.Int32</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>AllowDestructive</maml:name>
+        <maml:description>
+          <maml:para>Plan destructive operations (drop table / column / index / constraint, narrowing column changes, NULL to NOT NULL) as applicable too, so Script and Applicable show what Update-PSSqlRepositorySchema -AllowDestructive would run.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>HistoryCount</maml:name>
+        <maml:description>
+          <maml:para>How many rows of the __PSSqlRepositoryMigrations table (newest first) to include in History. Default 10; 0 skips reading the table.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">int32</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Int32</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes></command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>PSSqlRepository.Core.Schema.SchemaMigrationPlan</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The classified plan: Operations, Applicable, SkippedDestructive, Suppressed, UnmanagedTables, HasChanges, Script, History, HistoryTableExists.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>See docs/schema-migration.md for the full guide: additive versus destructive operations, the history table, scripts for a DBA, transactions and limitations.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: Inspect the differences ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>$plan = Compare-PSSqlRepositorySchema
+$plan.HasChanges
+$plan.Operations | Format-Table Status, Kind, Table, Column, Description</dev:code>
+        <dev:remarks>
+          <maml:para>Lists what Update-PSSqlRepositorySchema would do. Nothing is changed.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: Review the SQL including destructive changes ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>(Compare-PSSqlRepositorySchema -AllowDestructive).Script</dev:code>
+        <dev:remarks>
+          <maml:para>The script in the provider's dialect, with drops and narrowing changes included.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Update-PSSqlRepositorySchema</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Connect-PSSqlRepository</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Import-PSSqlRepositorySchema</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
       <command:name>Complete-PSSqlRepositoryTransaction</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Commits the ambient explicit transaction and clears it from the session manager.</maml:para>
       </maml:description>
       <command:verb>Complete</command:verb>
       <command:noun>PSSqlRepositoryTransaction</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>commits the ambient explicit transaction and clears it from the session manager.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -58,23 +167,25 @@
           <maml:name>System.Object</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Complete-PSSqlRepositoryTransaction</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -88,13 +199,13 @@
     <command:details>
       <command:name>Connect-PSSqlRepository</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Opens a session for the requested provider, applies the requested authentication mode (resolved through SqlAuthenticationRegistry), and stores the session in the ambient SqlSessionManager.</maml:para>
       </maml:description>
       <command:verb>Connect</command:verb>
       <command:noun>PSSqlRepository</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>opens a session for the requested provider, applies the requested authentication mode (resolved through SqlAuthenticationRegistry), and stores the session in the ambient SqlSessionManager. Returns a SqlRepositoryConnection handle.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -117,6 +228,13 @@
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>ImportSchema</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Migrate</maml:name>
           <maml:description />
           <dev:type>
             <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -157,6 +275,13 @@
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>ImportSchema</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Migrate</maml:name>
           <maml:description />
           <dev:type>
             <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -211,6 +336,13 @@
           </dev:type>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Migrate</maml:name>
+          <maml:description />
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
           <maml:name>WhatIf</maml:name>
           <maml:description />
           <dev:type>
@@ -230,7 +362,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>AuthMode</maml:name>
         <maml:description>
-          <maml:para>{{ Fill AuthMode Description }}</maml:para>
+          <maml:para>The AuthMode parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -249,7 +381,7 @@
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Credential</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Credential Description }}</maml:para>
+          <maml:para>The Credential parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Management.Automation.PSCredential</command:parameterValue>
         <dev:type>
@@ -259,7 +391,7 @@
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
         <maml:name>ProviderName</maml:name>
         <maml:description>
-          <maml:para>{{ Fill ProviderName Description }}</maml:para>
+          <maml:para>Name of a registered SQL provider, for example Sqlite or SqlServer (see Get-PSSqlRepositoryProvider).</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -270,6 +402,15 @@
         <maml:name>ImportSchema</maml:name>
         <maml:description>
           <maml:para>Database-first: reads the target database's schema first, emits one entity type per table and registers them as this provider's repository context, then connects. Equivalent to Import-PSSqlRepositorySchema (all tables) followed by Connect-PSSqlRepository with the same parameters. Replaces any context registered for the provider. See Import-PSSqlRepositorySchema for filtering and the schema report.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Migrate</maml:name>
+        <maml:description>
+          <maml:para>Forward-migrates the database schema to the registered model right after connecting: creates the database or missing tables (as -EnsureCreated does) and additionally adds missing columns, indexes and foreign keys to existing tables. Destructive differences (dropped columns, narrowed types) are reported as warnings and left alone; apply them with Update-PSSqlRepositorySchema -AllowDestructive. Each run that changes the schema is recorded in the __PSSqlRepositoryMigrations table. Cannot be combined with -ImportSchema. Implies -EnsureCreated.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -292,23 +433,25 @@
           <maml:name>PSSqlRepository.Providers.SqlRepositoryConnection</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Connect-PSSqlRepository</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -322,13 +465,13 @@
     <command:details>
       <command:name>Disconnect-PSSqlRepository</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Disposes the ambient session held by SqlSessionManager and rolls back any active explicit transaction.</maml:para>
       </maml:description>
       <command:verb>Disconnect</command:verb>
       <command:noun>PSSqlRepository</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>disposes the ambient session held by SqlSessionManager and rolls back any active explicit transaction.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -376,23 +519,25 @@
           <maml:name>System.Object</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Disconnect-PSSqlRepository</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -406,13 +551,14 @@
     <command:details>
       <command:name>Get-PSSqlRepositoryEntity</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Streams entities from the active session's database to the pipeline.</maml:para>
       </maml:description>
       <command:verb>Get</command:verb>
       <command:noun>PSSqlRepositoryEntity</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>streams entities from the active session's database to the pipeline. Supports lookup by Id, paging (-Top/-Skip), server-side filtering (-Filter), sorting (-OrderBy) and column projection (-Property) — all three translate to SQL WHERE / ORDER BY / SELECT — plus client-side filtering via a System.Management.Automation.ScriptBlock (-Where) and read-only execution (-AsNoTracking).</maml:para>
+      <maml:para>Also exposed as Get-PSSqlRepositoryItem for command-surface parity with the PSDataRepository module. The alias shares this single implementation so query behaviour cannot drift between the Entity and Item spellings.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -572,7 +718,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>AsNoTracking</maml:name>
         <maml:description>
-          <maml:para>{{ Fill AsNoTracking Description }}</maml:para>
+          <maml:para>Retained for compatibility. Reads are now ALWAYS no-tracking (the cmdlet returns disconnected snapshots that are safe to mutate and re-Save), so this switch no longer changes behaviour.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -581,7 +727,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>CommandTimeout</maml:name>
         <maml:description>
-          <maml:para>{{ Fill CommandTimeout Description }}</maml:para>
+          <maml:para>Per-invocation override (in seconds) for DbContext.Database.CommandTimeout. Use for one-off long-running queries (large scans, expensive includes) without bumping the provider-level default. 0 disables the timeout entirely; set only when you have a sustained workload that justifies waiting indefinitely.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Nullable`1[System.Int32]</command:parameterValue>
         <dev:type>
@@ -591,7 +737,7 @@
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
         <maml:name>EntityType</maml:name>
         <maml:description>
-          <maml:para>{{ Fill EntityType Description }}</maml:para>
+          <maml:para>The EntityType parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Type</command:parameterValue>
         <dev:type>
@@ -601,7 +747,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Filter</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Filter Description }}</maml:para>
+          <maml:para>Server-side filter using PowerShell comparison syntax, translated to a SQL WHERE clause via an EF Core expression tree. Supports -eq -ne -gt -ge -lt -le -like -notlike -in -notin -and -or -not, parentheses, dotted property paths ("Customer.Name") and literals ('text', numbers, $true, $false, $null). Unlike -Where, the filter runs in the database, so it composes correctly with -Top/-Skip paging.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -611,7 +757,7 @@
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue, ByPropertyName)" position="1" aliases="none">
         <maml:name>Id</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Id Description }}</maml:para>
+          <maml:para>The Id parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Object</command:parameterValue>
         <dev:type>
@@ -621,7 +767,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Include</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Include Description }}</maml:para>
+          <maml:para>Names of navigation properties to eagerly load. Each entry is passed verbatim to EF.Functions.Include (string overload), so dotted paths like "Orders.Items" work for nested loads. Use this when piping the result into Save-PSSqlRepositoryEntity -IncludeNavigations so the merger has the full existing graph to diff against.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
         <dev:type>
@@ -631,7 +777,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>IncludeAll</maml:name>
         <maml:description>
-          <maml:para>{{ Fill IncludeAll Description }}</maml:para>
+          <maml:para>Eagerly loads every navigation declared on the entity in the EF Core model (collections and references, one level deep). Convenient for ad-hoc inspection and for round-tripping into Save-PSSqlRepositoryEntity -IncludeNavigations. Combine with explicit -Include 'Lines.Foo' when you need deeper-than-one-level paths.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -640,7 +786,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>OrderBy</maml:name>
         <maml:description>
-          <maml:para>{{ Fill OrderBy Description }}</maml:para>
+          <maml:para>Sort specification translated to a SQL ORDER BY. Each entry is a property path optionally followed by a direction: 'Name', 'Name DESC' or 'Name:desc'. Multiple entries become ThenBy chains. Dotted paths order by related columns. Applied before -Skip/-Top, so paging is stable.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
         <dev:type>
@@ -650,7 +796,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Property</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Property Description }}</maml:para>
+          <maml:para>Projects only the named properties (SQL SELECT col1, col2) instead of loading full entities. Output objects are System.Management.Automation.PSObjects with one note property per requested path (dotted paths use the full path as the name). Mutually exclusive with -Include/-IncludeAll and tracking — the projected rows are detached values, not entities.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
         <dev:type>
@@ -660,7 +806,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Skip</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Skip Description }}</maml:para>
+          <maml:para>The Skip parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Nullable`1[System.Int32]</command:parameterValue>
         <dev:type>
@@ -670,7 +816,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>SuppressUnboundedWarning</maml:name>
         <maml:description>
-          <maml:para>{{ Fill SuppressUnboundedWarning Description }}</maml:para>
+          <maml:para>Suppresses the unbounded-query warning that Get-PSSqlRepositoryEntity emits when neither -Top nor -Skip is supplied. Use this for intentionally unbounded scans (small lookup tables, ad-hoc one-shots) to keep pipelines quiet in production.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -679,7 +825,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Top</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Top Description }}</maml:para>
+          <maml:para>The Top parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Nullable`1[System.Int32]</command:parameterValue>
         <dev:type>
@@ -689,7 +835,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Where</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Where Description }}</maml:para>
+          <maml:para>Client-side filter evaluated after the database Skip/Top page has been fetched. With -Top N -Where { … } you may receive fewer than N results because filtering happens on the materialised page, not in the database. Push predicates that affect the returned count down to the database via a custom repository method.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Management.Automation.ScriptBlock</command:parameterValue>
         <dev:type>
@@ -703,7 +849,7 @@
           <maml:name>System.Object</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -713,23 +859,75 @@
           <maml:name>System.Object</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Get-PSSqlRepositoryEntity -EntityType ([Customer])</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Id 5</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 100 -AsNoTracking</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 4 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Filter "Name -like 'A*'" -OrderBy 'Name DESC' -Top 10</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 5 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Filter "RowVersion -gt 3" -Property Id, Name</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 6 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Where { $_.Name -like 'A*' }</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -743,13 +941,15 @@
     <command:details>
       <command:name>Get-PSSqlRepositoryExtension</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Lists the extensions the module discovered at import time, including the ones it refused to load and why.</maml:para>
       </maml:description>
       <command:verb>Get</command:verb>
       <command:noun>PSSqlRepositoryExtension</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>Lists the extensions the module discovered at import time, including the ones it refused to load and why.</maml:para>
+      <maml:para>Extensions are plugin assemblies dropped into the module's Auth\ and Providers\ folders. Loading one can fail for reasons that are invisible from the outside — the assembly is unsigned, its public key token is not trusted, or it was built against an incompatible contract version — and the only symptom is a provider that does not exist.</maml:para>
+      <maml:para>This cmdlet reports every candidate assembly the loader saw, whether it loaded, and the reason for each rejection. The scan happens once when the module is imported, so results reflect that scan; restart PowerShell after adding or replacing an extension.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -849,23 +1049,45 @@
           <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Get-PSSqlRepositoryExtension</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-PSSqlRepositoryExtension -Rejected | Format-List Name, Reason</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-PSSqlRepositoryExtension -Subfolder Providers</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -879,13 +1101,14 @@
     <command:details>
       <command:name>Get-PSSqlRepositoryExtensionToken</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Reads the strong-name public key token from a .NET assembly in the format used by extensions.trust.json.</maml:para>
       </maml:description>
       <command:verb>Get</command:verb>
       <command:noun>PSSqlRepositoryExtensionToken</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>Reads the strong-name public key token from a .NET assembly in the format used by extensions.trust.json.</maml:para>
+      <maml:para>Helper for administrators who need to trust a 3rd-party PSSqlRepository extension. It reads the assembly metadata WITHOUT loading it for execution and returns the lowercase 16-character hex public key token, suitable for pasting into extensions.trust.json under trustedPublicKeyTokens (the token the loader gates every plugin on — see ExtensionTrustPolicy).</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -918,7 +1141,7 @@
           <maml:name>System.String[]</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -928,23 +1151,35 @@
           <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Get-PSSqlRepositoryExtensionToken -Path .\PSSqlRepository.Providers.DuckDB.dll</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-ChildItem .\Providers\*.dll | Get-PSSqlRepositoryExtensionToken</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -958,13 +1193,13 @@
     <command:details>
       <command:name>Get-PSSqlRepositoryProvider</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Lists all registered SQL provider definitions.</maml:para>
       </maml:description>
       <command:verb>Get</command:verb>
       <command:noun>PSSqlRepositoryProvider</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>lists all registered SQL provider definitions.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -983,7 +1218,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
         <maml:name>Name</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Name Description }}</maml:para>
+          <maml:para>The Name parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -998,23 +1233,25 @@
           <maml:name>PSSqlRepository.Providers.ISqlProviderDefinition</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Get-PSSqlRepositoryProvider</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -1028,13 +1265,13 @@
     <command:details>
       <command:name>Get-PSSqlRepositorySession</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Returns a handle for the active session held by SqlSessionManager, or $null when no session is connected.</maml:para>
       </maml:description>
       <command:verb>Get</command:verb>
       <command:noun>PSSqlRepositorySession</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>returns a handle for the active session held by SqlSessionManager, or $null when no session is connected.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -1049,23 +1286,25 @@
           <maml:name>PSSqlRepository.Providers.SqlRepositoryConnection</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Get-PSSqlRepositorySession</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -1079,13 +1318,16 @@
     <command:details>
       <command:name>Install-PSSqlRepositoryExtension</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Installs a PSSqlRepository extension into the installed module from a local artifact.</maml:para>
       </maml:description>
       <command:verb>Install</command:verb>
       <command:noun>PSSqlRepositoryExtension</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>Installs a PSSqlRepository extension into the installed module from a local artifact.</maml:para>
+      <maml:para>Places an extension's assemblies into the module's bin\{TFM}\{Subfolder}\ layout — the only location the loader scans — and copies its dependencies alongside the host assemblies where the plugin load context can resolve them. The source may be a .zip from publish-extension.ps1, a .nupkg, a folder, or a single .dll.</maml:para>
+      <maml:para>Before anything is written, every candidate assembly is inspected the same way the loader inspects it: it must be strong-named, and its declared contract version must be one this module can satisfy. Catching an incompatible extension here turns what would otherwise be a silently missing provider after the next restart into an error at install time.</maml:para>
+      <maml:para>Trust is deliberately NOT granted automatically. An extension signed with a key the module does not already trust is installed but will not load until its public key token is added to extensions.trust.json; pass -Trust to do that as part of the install, which is an explicit decision to let that publisher's code run. -Trust also pins the SHA-256 of every file it installs under trustedFileHashes: a third-party extension loads only while its content matches the pin, so a DLL replaced by hand must be installed with -Trust again.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -1352,7 +1594,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Trust</maml:name>
         <maml:description>
-          <maml:para>Also trust the extension's signing key by adding its token to extensions.trust.json.</maml:para>
+          <maml:para>Also trust the extension: add its signing key's token to extensions.trust.json and pin the SHA-256 of the installed files.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -1385,23 +1627,25 @@
           <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Install-PSSqlRepositoryExtension -Path .\PSSqlRepository.Providers.DuckDB-1.0.0.zip -Trust</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -1415,13 +1659,13 @@
     <command:details>
       <command:name>Register-PSSqlRepositoryContext</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Registers a provider-backed repository context type so subsequent Connect-PSSqlRepository sessions wire it plus the matching IRepository&lt;T&gt;/IUnitOfWork registrations into the session's DI scope.</maml:para>
       </maml:description>
       <command:verb>Register</command:verb>
       <command:noun>PSSqlRepositoryContext</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>registers a provider-backed repository context type so subsequent Connect-PSSqlRepository sessions wire it plus the matching IRepository&lt;T&gt;/IUnitOfWork registrations into the session's DI scope. The user's entities are then reachable via Save-PSSqlRepositoryEntity and through Get-PSSqlRepositorySession.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -1455,7 +1699,7 @@
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
         <maml:name>ContextType</maml:name>
         <maml:description>
-          <maml:para>{{ Fill ContextType Description }}</maml:para>
+          <maml:para>The ContextType parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Type</command:parameterValue>
         <dev:type>
@@ -1465,7 +1709,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>PassThru</maml:name>
         <maml:description>
-          <maml:para>{{ Fill PassThru Description }}</maml:para>
+          <maml:para>Returns the processed object(s) to the pipeline.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -1474,7 +1718,7 @@
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
         <maml:name>ProviderName</maml:name>
         <maml:description>
-          <maml:para>{{ Fill ProviderName Description }}</maml:para>
+          <maml:para>Name of a registered SQL provider, for example Sqlite or SqlServer (see Get-PSSqlRepositoryProvider).</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -1489,23 +1733,25 @@
           <maml:name>System.Void</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Register-PSSqlRepositoryContext</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -1791,13 +2037,14 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
     <command:details>
       <command:name>Register-PSSqlRepositoryEntity</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Registers a dynamic Microsoft.EntityFrameworkCore.DbContext built at runtime from the supplied entity types, so PowerShell users can persist plain PowerShell class definitions (or any CLR type implementing IEntity&lt;TKey&gt;) without writing or compiling a custom Microsoft.EntityFrameworkCore.DbContext in C#.</maml:para>
       </maml:description>
       <command:verb>Register</command:verb>
       <command:noun>PSSqlRepositoryEntity</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>registers a dynamic Microsoft.EntityFrameworkCore.DbContext built at runtime from the supplied entity types, so PowerShell users can persist plain PowerShell class definitions (or any CLR type implementing IEntity&lt;TKey&gt;) without writing or compiling a custom Microsoft.EntityFrameworkCore.DbContext in C#.</maml:para>
+      <maml:para>Internally registers DynamicEntityDbContext for the requested provider and attaches a DynamicEntityModelExtension so EF Core's model cache produces a distinct model per distinct type set. Subsequent Connect-PSSqlRepository calls will resolve the dynamic context exactly like a hand-written one.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -1831,7 +2078,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1" aliases="none">
         <maml:name>EntityType</maml:name>
         <maml:description>
-          <maml:para>{{ Fill EntityType Description }}</maml:para>
+          <maml:para>The EntityType parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Type[]</command:parameterValue>
         <dev:type>
@@ -1841,7 +2088,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>PassThru</maml:name>
         <maml:description>
-          <maml:para>{{ Fill PassThru Description }}</maml:para>
+          <maml:para>Returns the processed object(s) to the pipeline.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -1850,7 +2097,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
         <maml:name>ProviderName</maml:name>
         <maml:description>
-          <maml:para>{{ Fill ProviderName Description }}</maml:para>
+          <maml:para>Name of a registered SQL provider, for example Sqlite or SqlServer (see Get-PSSqlRepositoryProvider).</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -1864,7 +2111,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Type[]</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -1874,23 +2121,31 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Type</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>class Customer : IEntity[int] {
+    [int]  $Id
+    [string] $Name
+}
+Register-PSSqlRepositoryEntity -ProviderName Sqlite -EntityType ([Customer])
+Connect-PSSqlRepository -ProviderName Sqlite -ConnectionString $cs -EnsureCreated
+[Customer]@{ Name = 'Acme' } | Save-PSSqlRepositoryEntity</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -1904,13 +2159,16 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
     <command:details>
       <command:name>Remove-PSSqlRepositoryEntity</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Deletes one or more entities through the active session.</maml:para>
       </maml:description>
       <command:verb>Remove</command:verb>
       <command:noun>PSSqlRepositoryEntity</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>deletes one or more entities through the active session. Pipeline batched: N inputs result in a single SaveChanges call.</maml:para>
+      <maml:para>Two parameter sets:</maml:para>
+      <maml:para>- -InputObject from pipeline (typed instance, System.Management.Automation.PSObject, or hashtable carrying Id). - -EntityType -Id for ad-hoc deletion by key.</maml:para>
+      <maml:para>Also exposed as Remove-PSSqlRepositoryItem for command-surface parity with the PSDataRepository module. The alias shares this single implementation so delete behaviour cannot drift between the Entity and Item spellings.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -1999,7 +2257,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
         <maml:name>EntityType</maml:name>
         <maml:description>
-          <maml:para>{{ Fill EntityType Description }}</maml:para>
+          <maml:para>The EntityType parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Type</command:parameterValue>
         <dev:type>
@@ -2009,7 +2267,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
         <maml:name>Id</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Id Description }}</maml:para>
+          <maml:para>The Id parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Object</command:parameterValue>
         <dev:type>
@@ -2019,7 +2277,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="0" aliases="none">
         <maml:name>InputObject</maml:name>
         <maml:description>
-          <maml:para>{{ Fill InputObject Description }}</maml:para>
+          <maml:para>The InputObject parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Management.Automation.PSObject</command:parameterValue>
         <dev:type>
@@ -2029,7 +2287,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>PassThru</maml:name>
         <maml:description>
-          <maml:para>{{ Fill PassThru Description }}</maml:para>
+          <maml:para>Returns the processed object(s) to the pipeline.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -2051,7 +2309,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -2061,23 +2319,35 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Void</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Where { $_.Inactive } | Remove-PSSqlRepositoryEntity</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Remove-PSSqlRepositoryEntity -EntityType ([Customer]) -Id 5</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -2091,13 +2361,17 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
     <command:details>
       <command:name>Save-PSSqlRepositoryEntity</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Persists an entity through the active session's IRepository&lt;T&gt; + IUnitOfWork.</maml:para>
       </maml:description>
       <command:verb>Save</command:verb>
       <command:noun>PSSqlRepositoryEntity</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>persists an entity through the active session's IRepository&lt;T&gt; + IUnitOfWork. Pipeline batched twice over: N entities pushed through the pipeline result in a single SaveChanges call, and in Upsert/Update mode the existence check runs once per BatchSize entities (one keyed IN query) instead of one lookup per entity — see PersistManyAsync(PSSqlRepository.Providers.ISqlProviderSession,Microsoft.EntityFrameworkCore.DbContext,PSSqlRepository.Commands.SqlEntitySaveMode,System.Collections.Generic.IReadOnlyList{System.Object},System.Type,System.Boolean,PSSqlRepository.Core.OrphanBehavior,System.Collections.Generic.IDictionary{System.Object,System.Object},System.Threading.CancellationToken).</maml:para>
+      <maml:para>Accepts strongly-typed instances, System.Management.Automation.PSObject, [pscustomobject], hashtables, and anonymous types. Nested navigation collections are converted recursively.</maml:para>
+      <maml:para>Also exposed as Set-PSSqlRepositoryItem / Save-PSSqlRepositoryItem for command-surface parity with the PSDataRepository module ($collection | Set-PSSqlRepositoryItem). Aliases share this single implementation so the persistence pipeline cannot drift between the Entity and Item spellings.</maml:para>
+      <maml:para>Add vs. Upsert for graphs with existing relations. -Mode Add tracks the whole incoming graph as new, so if it references an already-persisted related entity (e.g. a category that already has a key) the provider tries to INSERT that row too and fails on the primary key. To attach to existing related rows, use the default Upsert (or Update) with -IncludeNavigations, which matches children by key and only inserts the genuinely new ones.</maml:para>
+      <maml:para>Single session, single thread. The whole pipeline shares one session-scoped DbContext, which — like EF Core itself — is not thread-safe. The active session is held in an AsyncLocal, so it does NOT flow into ForEach-Object -Parallel branches: each branch starts with no session and fails fast on "Call Connect-PSSqlRepository first". Give every parallel branch its own Connect-PSSqlRepository. If you instead capture a session outside the block and drive it from several branches, the session's own guard throws a clear error rather than corrupting state. On a single thread the batched single-SaveChanges commit is the fast path.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2183,7 +2457,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>CommandTimeout</maml:name>
         <maml:description>
-          <maml:para>{{ Fill CommandTimeout Description }}</maml:para>
+          <maml:para>Per-invocation override (in seconds) for DbContext.Database.CommandTimeout. Apply to bulk pipeline writes that exceed the provider default (30 s on SQL Server). 0 disables the timeout entirely.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Nullable`1[System.Int32]</command:parameterValue>
         <dev:type>
@@ -2202,7 +2476,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
         <maml:name>EntityType</maml:name>
         <maml:description>
-          <maml:para>{{ Fill EntityType Description }}</maml:para>
+          <maml:para>The EntityType parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Type</command:parameterValue>
         <dev:type>
@@ -2212,7 +2486,10 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>IncludeNavigations</maml:name>
         <maml:description>
-          <maml:para>{{ Fill IncludeNavigations Description }}</maml:para>
+          <maml:para>When set, navigation collections on the incoming graph are diffed against the stored graph: new children are inserted, matching children are updated, and children present in the database but absent from the incoming graph are deleted (or detached, per OrphanBehavior).</maml:para>
+          <maml:para>Conventions:</maml:para>
+          <maml:para>- A null navigation on the incoming entity means "do not touch this navigation". - An empty collection means "remove all children". - Children are matched by primary key. - Many-to-many: orphaning drops only the join row, never the target entity. - Owned references are merged in place; owned collections are replaced.</maml:para>
+          <maml:para>When unset (default), only mapped scalar properties are updated and navigation collections are ignored — preserving the legacy aggregate-root scalar-only behaviour.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -2221,7 +2498,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="0" aliases="none">
         <maml:name>InputObject</maml:name>
         <maml:description>
-          <maml:para>{{ Fill InputObject Description }}</maml:para>
+          <maml:para>The InputObject parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Management.Automation.PSObject</command:parameterValue>
         <dev:type>
@@ -2231,7 +2508,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>Mode</maml:name>
         <maml:description>
-          <maml:para>{{ Fill Mode Description }}</maml:para>
+          <maml:para>The Mode parameter.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">PSSqlRepository.Commands.SqlEntitySaveMode</command:parameterValue>
         <dev:type>
@@ -2241,7 +2518,8 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>OrphanBehavior</maml:name>
         <maml:description>
-          <maml:para>{{ Fill OrphanBehavior Description }}</maml:para>
+          <maml:para>Per-call override for orphan handling. Only meaningful in combination with IncludeNavigations.</maml:para>
+          <maml:para>- (default) honor each relationship's OnDelete behavior. - always DELETE orphaned children. - always NULL the FK and preserve the row. - fail when an orphan would be produced.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">PSSqlRepository.Core.OrphanBehavior</command:parameterValue>
         <dev:type>
@@ -2251,7 +2529,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>PassThru</maml:name>
         <maml:description>
-          <maml:para>{{ Fill PassThru Description }}</maml:para>
+          <maml:para>Returns the processed object(s) to the pipeline.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -2260,7 +2538,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>SkipEnumeration</maml:name>
         <maml:description>
-          <maml:para>{{ Fill SkipEnumeration Description }}</maml:para>
+          <maml:para>When set, suppresses the auto-unrolling of an System.Collections.IEnumerable passed as a single -InputObject. Use when the entity itself implements System.Collections.IEnumerable (e.g. an entity wrapping a custom collection) and must be persisted as a scalar input rather than expanded.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -2282,7 +2560,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -2292,23 +2570,25 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Object</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Save-PSSqlRepositoryEntity</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -2322,13 +2602,13 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
     <command:details>
       <command:name>Start-PSSqlRepositoryTransaction</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Opens an explicit transaction on the active session and stores it in the ambient SqlSessionManager so subsequent Save-PSSqlRepositoryEntity calls enlist automatically.</maml:para>
       </maml:description>
       <command:verb>Start</command:verb>
       <command:noun>PSSqlRepositoryTransaction</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>opens an explicit transaction on the active session and stores it in the ambient SqlSessionManager so subsequent Save-PSSqlRepositoryEntity calls enlist automatically.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2369,7 +2649,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>PassThru</maml:name>
         <maml:description>
-          <maml:para>{{ Fill PassThru Description }}</maml:para>
+          <maml:para>Returns the processed object(s) to the pipeline.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -2392,23 +2672,25 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>PSSqlRepository.Abstractions.ISqlRepositoryTransaction</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Start-PSSqlRepositoryTransaction</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -2422,13 +2704,13 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
     <command:details>
       <command:name>Undo-PSSqlRepositoryTransaction</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Rolls back the ambient explicit transaction and clears it from the session manager.</maml:para>
       </maml:description>
       <command:verb>Undo</command:verb>
       <command:noun>PSSqlRepositoryTransaction</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>rolls back the ambient explicit transaction and clears it from the session manager.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2476,23 +2758,25 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Object</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Undo-PSSqlRepositoryTransaction</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -2506,13 +2790,16 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
     <command:details>
       <command:name>Uninstall-PSSqlRepositoryExtension</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Removes an installed PSSqlRepository extension from the module.</maml:para>
       </maml:description>
       <command:verb>Uninstall</command:verb>
       <command:noun>PSSqlRepositoryExtension</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>Removes an installed PSSqlRepository extension from the module.</maml:para>
+      <maml:para>Deletes the extension assembly from every bin\{TFM}\{Subfolder}\ folder it is found in, together with the dependencies it introduced.</maml:para>
+      <maml:para>Dependency cleanup is driven by the manifest Install-PSSqlRepositoryExtension wrote (extensions.deps.json). A file is removed only when this extension brought it into a module that did not have it, and no other installed extension lists it. Anything that pre-existed belongs to the module itself, and anything another extension still needs stays — the module root is shared, so deleting the wrong file there breaks something else. An extension installed before that manifest existed has nothing recorded, so only its own assembly is removed.</maml:para>
+      <maml:para>The pinned SHA-256 of each removed file is dropped from extensions.trust.json. The publisher's token is not revoked unless -RemoveTrust is given, and revoking a token affects every extension signed with that key, not just this one.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2611,7 +2898,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.String[]</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -2621,23 +2908,35 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Uninstall-PSSqlRepositoryExtension -Name PSSqlRepository.Providers.DuckDB</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2 ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Get-PSSqlRepositoryExtension -Rejected | Uninstall-PSSqlRepositoryExtension</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
@@ -2651,13 +2950,13 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
     <command:details>
       <command:name>Unregister-PSSqlRepositoryContext</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Removes a previously registered repository context for the given provider.</maml:para>
       </maml:description>
       <command:verb>Unregister</command:verb>
       <command:noun>PSSqlRepositoryContext</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>removes a previously registered repository context for the given provider.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -2676,7 +2975,7 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="0" aliases="none">
         <maml:name>ProviderName</maml:name>
         <maml:description>
-          <maml:para>{{ Fill ProviderName Description }}</maml:para>
+          <maml:para>Name of a registered SQL provider, for example Sqlite or SqlServer (see Get-PSSqlRepositoryProvider).</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.String</command:parameterValue>
         <dev:type>
@@ -2691,29 +2990,212 @@ Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Top 10
           <maml:name>System.Void</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>See the cmdlet description.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Part of the PSSqlRepository module. See about_PSSqlRepository and the docs/ folder of the repository.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>PS C:\&gt;</maml:para>
         </maml:introduction>
-        <dev:code />
-        <dev:remarks />
+        <dev:code>Unregister-PSSqlRepositoryContext</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
       </command:example>
     </command:examples>
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version</maml:linkText>
         <maml:uri />
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command>
+    <command:details>
+      <command:name>Update-PSSqlRepositorySchema</command:name>
+      <maml:description>
+        <maml:para>Forward-migrates the connected database to the registered entity model, the way EF Core migrations would, without a migrations project.</maml:para>
+      </maml:description>
+      <command:verb>Update</command:verb>
+      <command:noun>PSSqlRepositorySchema</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Compares the live catalogue with the registered model (see Compare-PSSqlRepositorySchema) and applies the additive differences in one batch: new tables, columns, indexes, foreign keys, unique and check constraints, widened columns and index renames. Destructive differences (dropped tables or columns, narrowed types, NULL to NOT NULL, identity changes) are reported as warnings and only applied with -AllowDestructive, which prompts unless -Force is given. Tables the model does not map are never touched.</maml:para>
+      <maml:para>Every run that changes the schema is recorded as a row in the __PSSqlRepositoryMigrations table (created on first use) in the same batch as the schema change; -NoHistory skips that. -Script returns the SQL in the provider's dialect instead of running it; -WhatIf reports what would run. Schema changes run in their own transaction, so the cmdlet refuses to run while an explicit transaction is open.</maml:para>
+      <maml:para>Returns a SchemaMigrationResult (Applied, MigrationId, AppliedOnUtc, AppliedOperationCount, Plan), or the SQL string with -Script.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Update-PSSqlRepositorySchema</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>AllowDestructive</maml:name>
+          <maml:description></maml:description>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>NoHistory</maml:name>
+          <maml:description></maml:description>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Script</maml:name>
+          <maml:description></maml:description>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description></maml:description>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>WhatIf</maml:name>
+          <maml:description></maml:description>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named" aliases="none">
+          <maml:name>Confirm</maml:name>
+          <maml:description></maml:description>
+          <dev:type>
+            <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+          </dev:type>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>AllowDestructive</maml:name>
+        <maml:description>
+          <maml:para>Also apply destructive operations: drop tables, columns, indexes and constraints the model no longer has, narrow column types, make columns NOT NULL. Prompts before running them unless -Force is given.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>NoHistory</maml:name>
+        <maml:description>
+          <maml:para>Do not record this run in the __PSSqlRepositoryMigrations table (and do not create it).</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Script</maml:name>
+        <maml:description>
+          <maml:para>Return the SQL script that would run, in the provider's dialect, instead of executing it. Honours -AllowDestructive and -NoHistory.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Force</maml:name>
+        <maml:description>
+          <maml:para>Skip the confirmation prompt for destructive operations (-AllowDestructive).</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="wi">
+        <maml:name>WhatIf</maml:name>
+        <maml:description>
+          <maml:para>Runs the command in a mode that only reports what would happen without performing the actions.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="cf">
+        <maml:name>Confirm</maml:name>
+        <maml:description>
+          <maml:para>Prompts you for confirmation before running the cmdlet.</maml:para>
+        </maml:description>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes></command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>PSSqlRepository.Core.Schema.SchemaMigrationResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>Whether the plan was applied, the migration id recorded in the history table, and the plan itself. With -Script: the SQL as a string.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>See docs/schema-migration.md for the full guide: additive versus destructive operations, the history table, scripts for a DBA, transactions and limitations.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: Preview, then apply ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Update-PSSqlRepositorySchema -WhatIf
+Update-PSSqlRepositorySchema</dev:code>
+        <dev:remarks>
+          <maml:para>The first call reports what would run; the second applies the additive changes and records them.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: Hand the SQL to a DBA ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Update-PSSqlRepositorySchema -Script | Set-Content .\migration.sql</dev:code>
+        <dev:remarks>
+          <maml:para>Nothing is executed. The script includes the history table and row, so applying it by hand leaves the same audit trail.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3: Apply destructive changes in a script ---------</maml:title>
+        <maml:introduction>
+          <maml:para>PS C:\&gt;</maml:para>
+        </maml:introduction>
+        <dev:code>Update-PSSqlRepositorySchema -AllowDestructive -Force</dev:code>
+        <dev:remarks>
+          <maml:para>Drops and narrowing changes run too; -Force suppresses the confirmation prompt.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Compare-PSSqlRepositorySchema</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Connect-PSSqlRepository</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Import-PSSqlRepositorySchema</maml:linkText>
+        <maml:uri></maml:uri>
       </maml:navigationLink>
     </command:relatedLinks>
   </command:command>

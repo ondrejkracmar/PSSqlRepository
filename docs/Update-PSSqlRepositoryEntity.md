@@ -4,7 +4,7 @@ external help file: PSSqlRepository-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Update-PSSqlRepositoryEntity
 ---
@@ -13,7 +13,7 @@ title: Update-PSSqlRepositoryEntity
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Updates existing entities: a discoverable proxy for Save-PSSqlRepositoryEntity -Mode Update.
 
 ## SYNTAX
 
@@ -32,19 +32,22 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+Forwards every parameter to Save-PSSqlRepositoryEntity with -Mode Update, so an entity whose key does not exist yet fails instead of being inserted.
+Pipeline input, batching (-BatchSize), -IncludeNavigations, -OrphanBehavior and -PassThru behave exactly as on Save-PSSqlRepositoryEntity; see its help for details.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+$customer = Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Id 5
+$customer.Name = 'Renamed'
+$customer | Update-PSSqlRepositoryEntity -PassThru
 
 ## PARAMETERS
 
 ### -CommandTimeout
 
-{{ Fill CommandTimeout Description }}
+Per-invocation override (in seconds) of the command timeout used for the update; restored when the command ends.
 
 ```yaml
 Type: System.Int32
@@ -87,7 +90,7 @@ HelpMessage: ''
 
 ### -EntityType
 
-{{ Fill EntityType Description }}
+Entity type to update when it cannot be inferred from the input object (a hashtable or PSCustomObject).
 
 ```yaml
 Type: System.Type
@@ -108,7 +111,7 @@ HelpMessage: ''
 
 ### -IncludeNavigations
 
-{{ Fill IncludeNavigations Description }}
+Also merge navigation properties (child collections and references) instead of updating scalar columns only.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -129,7 +132,7 @@ HelpMessage: ''
 
 ### -InputObject
 
-{{ Fill InputObject Description }}
+The entity (or hashtable / PSCustomObject carrying its key) to update; accepts pipeline input.
 
 ```yaml
 Type: System.Management.Automation.PSObject
@@ -150,7 +153,7 @@ HelpMessage: ''
 
 ### -OrphanBehavior
 
-{{ Fill OrphanBehavior Description }}
+What happens to child rows a merged collection no longer contains: Detach, Delete or Fail (see Save-PSSqlRepositoryEntity).
 
 ```yaml
 Type: PSSqlRepository.Core.OrphanBehavior
@@ -171,7 +174,7 @@ HelpMessage: ''
 
 ### -PassThru
 
-{{ Fill PassThru Description }}
+Returns the updated entity to the pipeline.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -192,7 +195,7 @@ HelpMessage: ''
 
 ### -SkipEnumeration
 
-{{ Fill SkipEnumeration Description }}
+Treat an input object that implements IEnumerable as one entity instead of unrolling it.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -244,19 +247,21 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.Management.Automation.PSObject
 
-{{ Fill in the Description }}
+Forwards every parameter to Save-PSSqlRepositoryEntity with -Mode Update, so an entity whose key does not exist yet fails instead of being inserted.
+Pipeline input, batching (-BatchSize), -IncludeNavigations, -OrphanBehavior and -PassThru behave exactly as on Save-PSSqlRepositoryEntity; see its help for details.
 
 ## OUTPUTS
 
 ### System.Object
 
-{{ Fill in the Description }}
+Forwards every parameter to Save-PSSqlRepositoryEntity with -Mode Update, so an entity whose key does not exist yet fails instead of being inserted.
+Pipeline input, batching (-BatchSize), -IncludeNavigations, -OrphanBehavior and -PassThru behave exactly as on Save-PSSqlRepositoryEntity; see its help for details.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Proxy function defined in PSSqlRepository.psm1; the implementation is Save-PSSqlRepositoryEntity.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

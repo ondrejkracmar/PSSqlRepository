@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Uninstall-PSSqlRepositoryExtension
 ---
@@ -13,7 +13,7 @@ title: Uninstall-PSSqlRepositoryExtension
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Removes an installed PSSqlRepository extension from the module.
 
 ## SYNTAX
 
@@ -31,13 +31,27 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+Removes an installed PSSqlRepository extension from the module.
+
+Deletes the extension assembly from every bin\{TFM}\{Subfolder}\ folder it is found in, together with the dependencies it introduced.
+
+Dependency cleanup is driven by the manifest Install-PSSqlRepositoryExtension wrote (extensions.deps.json).
+A file is removed only when this extension brought it into a module that did not have it, and no other installed extension lists it.
+Anything that pre-existed belongs to the module itself, and anything another extension still needs stays — the module root is shared, so deleting the wrong file there breaks something else.
+An extension installed before that manifest existed has nothing recorded, so only its own assembly is removed.
+
+The pinned SHA-256 of each removed file is dropped from extensions.trust.json.
+The publisher's token is not revoked unless -RemoveTrust is given, and revoking a token affects every extension signed with that key, not just this one.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Uninstall-PSSqlRepositoryExtension -Name PSSqlRepository.Providers.DuckDB
+
+### Example 2
+
+Get-PSSqlRepositoryExtension -Rejected | Uninstall-PSSqlRepositoryExtension
 
 ## PARAMETERS
 
@@ -65,7 +79,8 @@ HelpMessage: ''
 
 ### -ModuleRoot
 
-Module root to remove from. Defaults to the running module.
+Module root to remove from.
+Defaults to the running module.
 
 ```yaml
 Type: System.String
@@ -107,7 +122,8 @@ HelpMessage: ''
 
 ### -RemoveTrust
 
-Also revoke the signing key's trust. Affects every extension signed with it.
+Also revoke the signing key's trust.
+Affects every extension signed with it.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -159,19 +175,20 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.String[]
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## OUTPUTS
 
 ### System.Management.Automation.PSObject
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

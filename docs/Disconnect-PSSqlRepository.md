@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Disconnect-PSSqlRepository
 ---
@@ -13,7 +13,7 @@ title: Disconnect-PSSqlRepository
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Disposes the ambient session held by SqlSessionManager and rolls back any active explicit transaction.
 
 ## SYNTAX
 
@@ -30,13 +30,13 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+disposes the ambient session held by SqlSessionManager and rolls back any active explicit transaction.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Disconnect-PSSqlRepository
 
 ## PARAMETERS
 
@@ -97,13 +97,14 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.Object
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

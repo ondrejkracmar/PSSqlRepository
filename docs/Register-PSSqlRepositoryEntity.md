@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Register-PSSqlRepositoryEntity
 ---
@@ -13,7 +13,7 @@ title: Register-PSSqlRepositoryEntity
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Registers a dynamic Microsoft.EntityFrameworkCore.DbContext built at runtime from the supplied entity types, so PowerShell users can persist plain PowerShell class definitions (or any CLR type implementing IEntity<TKey>) without writing or compiling a custom Microsoft.EntityFrameworkCore.DbContext in C#.
 
 ## SYNTAX
 
@@ -30,19 +30,28 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+registers a dynamic Microsoft.EntityFrameworkCore.DbContext built at runtime from the supplied entity types, so PowerShell users can persist plain PowerShell class definitions (or any CLR type implementing IEntity<TKey>) without writing or compiling a custom Microsoft.EntityFrameworkCore.DbContext in C#.
+
+Internally registers DynamicEntityDbContext for the requested provider and attaches a DynamicEntityModelExtension so EF Core's model cache produces a distinct model per distinct type set.
+Subsequent Connect-PSSqlRepository calls will resolve the dynamic context exactly like a hand-written one.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+class Customer : IEntity[int] {
+    [int]  $Id
+    [string] $Name
+}
+Register-PSSqlRepositoryEntity -ProviderName Sqlite -EntityType ([Customer])
+Connect-PSSqlRepository -ProviderName Sqlite -ConnectionString $cs -EnsureCreated
+[Customer]@{ Name = 'Acme' } | Save-PSSqlRepositoryEntity
 
 ## PARAMETERS
 
 ### -EntityType
 
-{{ Fill EntityType Description }}
+The EntityType parameter.
 
 ```yaml
 Type: System.Type[]
@@ -63,7 +72,7 @@ HelpMessage: ''
 
 ### -PassThru
 
-{{ Fill PassThru Description }}
+Returns the processed object(s) to the pipeline.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -84,7 +93,7 @@ HelpMessage: ''
 
 ### -ProviderName
 
-{{ Fill ProviderName Description }}
+Name of a registered SQL provider, for example Sqlite or SqlServer (see Get-PSSqlRepositoryProvider).
 
 ```yaml
 Type: System.String
@@ -114,19 +123,20 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.Type[]
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## OUTPUTS
 
 ### System.Type
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

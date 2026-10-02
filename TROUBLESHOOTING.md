@@ -72,6 +72,39 @@ A navigation collection on the entity uses a CLR type that does not expose a
 public `Add(T)`. Use `List<T>`, `HashSet<T>`, an array, or expose a writable
 backing collection.
 
+## Schema migration
+
+### `An explicit transaction is active. Complete-PSSqlRepositoryTransaction or Undo-PSSqlRepositoryTransaction first …`
+
+`Compare-` and `Update-PSSqlRepositorySchema` read the catalogue and run DDL outside the session's
+transaction, so they refuse to start while `Start-PSSqlRepositoryTransaction` is open. Complete or
+undo it first.
+
+### `Held back: DropColumn … (destructive)` / `Skipped: … (dependent)`
+
+The plan contains a change that can lose data or an object (a drop, a narrowed column, a
+nullability change) and the default run is additive. Review it, then apply with
+`Update-PSSqlRepositorySchema -AllowDestructive` (add `-Force` in scripts to skip the prompt), or
+put the property back in the model. `Update-PSSqlRepositorySchema -Script -AllowDestructive`
+shows the SQL that would run. See [docs/schema-migration.md](docs/schema-migration.md).
+
+### `Provider '<name>' does not advertise the SchemaManagement capability …`
+
+The provider opted out of schema management (its EF Core provider has no migrations pipeline), or
+the session exposes no `DbContext`. There is nothing to migrate through the module; manage the
+schema with the provider's own tooling.
+
+### `-ImportSchema and -Migrate cannot be combined`
+
+An imported model is a copy of the database, so there is nothing to migrate. Use one or the other.
+
+### `Compare-PSSqlRepositorySchema` keeps reporting a change that `Update` never clears
+
+The database has an object the model describes differently in a way that is not applied by
+default — typically a column rename (reported as an add plus a held-back drop; columns are never
+renamed) or a constraint a DBA defined differently (a held-back drop plus a dependent create).
+Apply it once with `-AllowDestructive`, or change the model to match the database.
+
 ## Get
 
 ### `There is no Runspace available to run scripts in this thread.`
@@ -138,7 +171,12 @@ Get-PSSqlRepositoryExtension | Format-Table Name, Status, Reason
 `Status: Rejected` with *"its public key token '…' is not trusted"* is the usual answer — the
 extension was installed without `-Trust`. Re-run
 `Install-PSSqlRepositoryExtension -Path … -Trust` (or add the token to `extensions.trust.json` in
-the module root) and restart PowerShell. Other reasons are tabulated in
+the module root) and restart PowerShell.
+
+*"its content changed since it was trusted"* means the DLL on disk is not the one `-Trust` pinned
+(it was updated by hand, or tampered with); re-run the install with `-Trust` if the update is
+intended. *"its SHA-256 is not pinned"* means the file was copied in without the install cmdlet.
+Other reasons are tabulated in
 [docs/extensibility.md](docs/extensibility.md#diagnosing-a-missing-provider).
 
 ### `PSSqlRepository: failed to preload '<assembly>': <message>`

@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Extension trust pins file hashes.** `extensions.trust.json` gained `trustedFileHashes`
+  (path relative to the trust file → SHA-256) and `developmentMode`. A third-party extension
+  (any strong-name token other than the module's own) now loads only when its content matches
+  the pinned hash; `Install-PSSqlRepositoryExtension -Trust` pins every file it installs and
+  `Uninstall-PSSqlRepositoryExtension` removes the pin. A trust file written before this
+  release has no section and is baselined on first load, so already-trusted extensions keep
+  working unchanged; a DLL replaced by hand is refused with *"its content changed since it was
+  trusted"* until it is re-trusted. `"developmentMode": true` restores token-only trust for
+  developer machines. The loader keeps the candidate file open share-read from hashing through
+  loading, so the bytes it verified are the bytes it loads. Public API:
+  `ExtensionTrustStore.ReadTrustList`, `PinFileHash`, `UnpinFileHash`, `RelativeKey`,
+  `ComputeSha256`. The extension contract is unchanged.
+- **The pin covers the extension's dependencies.** `-Trust` also pins every file the extension
+  installed (its private folder, the shared dependencies it claimed, the native assets staged
+  under `runtimes/`, which `extensions.deps.json` now records so uninstall can remove them), the
+  loader verifies that closure before the extension loads and refuses it naming the file that is
+  unpinned or changed, and the extension's load context re-checks each file it actually loads.
+  A trust file from before pinning baselines the closure on first load.
+- **CI: the Microsoft Security DevOps step blocks on findings** once enabled (`enableMSDO`); it
+  stays opt-in until the Marketplace extension is installed at the organisation.
+- **Forward schema migration — `Update-PSSqlRepositorySchema`, `Compare-PSSqlRepositorySchema`,
+  `Connect-PSSqlRepository -Migrate`.** The connected database is compared with the registered
+  model the way EF Core migrations do, without a migrations project: the live catalogue is read
+  through the provider's `IDatabaseModelFactory`, rebuilt as a snapshot-style model
+  (`Schema/CatalogueModelBuilder`) and diffed with EF Core's own `IMigrationsModelDiffer`.
+  Additive operations (new tables, columns, indexes, foreign keys, widened columns, index renames)
+  apply in one batch through the provider's migrations SQL generator and executor; destructive
+  ones (drops, narrowing, nullability changes in either direction, identity changes) are reported
+  as warnings and only run with `-AllowDestructive` (prompting unless `-Force`). The differ's
+  column-rename guesses are never applied: they become an add plus a held-back drop. Tables the model does not map are listed
+  as unmanaged and never touched. `-Script` returns the SQL instead of running it. Each applied
+  run is recorded in a `__PSSqlRepositoryMigrations` history table (`-NoHistory` opts out;
+  `Compare` returns the newest rows). `Connect -Migrate` implies `-EnsureCreated` and reaches the
+  provider through the connect context by name, so third-party providers need no rebuild; every
+  surface honours `SqlProviderCapabilities.SchemaManagement`. Both cmdlets refuse to run inside an
+  explicit transaction. New guide: `docs/schema-migration.md`. Public API in
+  `PSSqlRepository.Core.Schema`: `SchemaMigrator`, `SchemaMigrationPlan`, `SchemaMigrationResult`,
+  `SchemaMigrationOptions`, `SchemaMigrationHistory`; `DatabaseSchemaReader.Read(DbContext, …)`
+  overload; `SqlProviderDefinitionBase.MigrateParameterName` and the virtual
+  `MigrateAfterConnect`. The extension contract (Abstractions / Providers / Authentications) is
+  unchanged.
 - **Schema import reports unique constraints and indexes.** `SqlSchemaTable.UniqueConstraints`
   and `SqlSchemaTable.Indexes` (name, columns, `IsUnique`, filter) carry what the provider's
   catalogue reader already sees, so a consumer building its own schema model from the import
@@ -15,6 +56,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fallback can map is still listed in `SqlSchemaTable.Columns` (`IsMappedToProperty = false`,
   `ClrType = object`) instead of vanishing from the table description; it is just not emitted as
   an entity property. `UnmappedColumns` keeps naming them for the warning.
+
+### Changed
+- `Connect -EnsureCreated`'s table-creation and table-existence checks moved from
+  `SqlProviderSession` into `Schema/SchemaMigrator` (`CreateMissingTables`, `EnsureSchemaMatchesModel`)
+  with identical behaviour and messages; `SqlProviderSession` delegates to them.
+- `Import-PSSqlRepositorySchema` skips `__PSSqlRepositoryMigrations` and `__EFMigrationsHistory`
+  (reported with a `SkipReason`) instead of emitting an entity for them.
+- A provider connect parameter with no `HelpMessage` no longer throws while the dynamic
+  parameters are built; it simply gets no help text.
+- A provider connect parameter named like a static `Connect-`/`Import-` parameter
+  (`Migrate`, `ImportSchema`, …) is skipped with a verbose note instead of making PowerShell fail
+  at bind time with a duplicate parameter.
+
+### Fixed
+- **`Connect-PSSqlRepository -EnsureCreated` creates a missing schema before a new table.** The
+  additive path kept only the `CreateTable` operations of the fresh-database diff and dropped
+  the `EnsureSchema` that precedes a schema-qualified table, so a new entity mapped to a schema
+  the database did not yet have failed with *"The specified schema name … does not exist"*.
+  The schema is now created for the tables being added.
+
+Findings of the October 2026 deep-dive review (`docs/internal/code-review-deep-dive.md`), each
+with a regression test in `ReviewFixesTests`:
+- **A failed or aborted `Save-`/`Remove-PSSqlRepositoryEntity` no longer poisons the session.**
+  Entities staged on the shared change tracker but never committed (terminating error, failed
+  `SaveChanges`) were persisted by the next unrelated Save/Remove, or kept failing it; they are
+  now detached when the cmdlet ends without a commit, with a warning.
+- **A streamed `Get-PSSqlRepositoryEntity` no longer hangs the session** when the consumer
+  leaves early (a throwing `-Where`, a downstream error, `Select-Object -First`): the producer is
+  cancelled instead of blocking on a full buffer forever.
+- **`-CommandTimeout` is scoped to the invocation** instead of staying on the session's context
+  for every later cmdlet.
+- **Guid and enum keys given as strings** (`-Id '0f8f…'`, batched upserts) are converted like
+  property values instead of failing with `InvalidCastException`.
+- **`-Filter` values and `-Id` are SQL parameters, not literals** (one compiled query and one
+  plan per filter shape instead of one per distinct value).
+- **Input properties with no writable counterpart on the entity are reported** (once per entity
+  type and name) instead of being dropped silently.
+- **`Unregister-PSSqlRepositoryContext` really forgets the entity types**: the accumulated list
+  behind `Register-PSSqlRepositoryEntity` lives on the registration now, so a later `Register`
+  (or a database-first import, or a pre-compiled context) starts afresh; module unload clears the
+  registry.
+- **Constraint violations are classified by provider error code** (SQL Server `Number`, SQLite
+  extended code) before falling back to message text, and `Remove-PSSqlRepositoryEntity`
+  translates its commit errors like `Save` does.
+- **`Install-PSSqlRepositoryExtension -Name/-Repository`** found no payload: the downloaded
+  `.nupkg` is now extracted like a `-Path .nupkg`.
+- **The credential-bearing `SqlConnection` is owned by EF** (`contextOwnsConnection: true`) and
+  disposed with the context; **`SqlServerAuthProvider` no longer freezes the caller's
+  `PSCredential.Password`** read-only (works on a copy).
+- **Both MCP hosts refuse to start with authentication disabled** outside the Development
+  environment unless `Authentication:AllowAnonymous=true` is set explicitly; the Runspace host
+  **keeps the session between tool calls** (every cmdlet now runs on one dedicated thread, where
+  the module's `AsyncLocal` session persists); provider error text returned to MCP clients is
+  sanitised; a session is disposed when publishing it fails.
+- Provider connect-parameter help texts for `ConnectionString` / `EnsureCreated` no longer show
+  unrelated error strings.
+- **`Get-Help` now shows real help for every cmdlet.** The shipped MAML sat one folder too deep
+  (`en-US/PSSqlRepository/`), where PowerShell never looks, so every cmdlet fell back to
+  auto-generated syntax; the files now live directly in `en-US/`, the 17 cmdlets whose help was
+  PlatyPS placeholders got synopsis, description, parameter and example text generated from
+  their C# XML documentation, and `tests/pester.ps1` now fails the run when a test file's
+  discovery fails instead of reporting zero tests.
+- `Remove-Module PSSqlRepository` no longer removes the `IEntity` / `OrphanBehavior` type
+  accelerators when another module registered them first.
 
 ### Removed
 - **BREAKING — the `Sql` prefix is gone from three loader types.**

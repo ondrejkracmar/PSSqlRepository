@@ -102,8 +102,10 @@ $null = Connect-PSSqlRepository Sqlite -Memory -EnsureCreated
 $null = Connect-PSSqlRepository SqlServer -Server '.\SQLEXPRESS' -Database 'MyDb' -EnsureCreated
 ```
 
-`-EnsureCreated` creates the schema from the registered model when it is absent. It is a development
-convenience — it will not alter an existing table after the model changes.
+`-EnsureCreated` creates the schema from the registered model when it is absent, and adds tables
+the model gained since. It will not alter an existing table after the model changes; for that use
+`-Migrate` instead (same, plus new columns / indexes / foreign keys on existing tables) or run
+`Update-PSSqlRepositorySchema` on an open session. See [schema-migration.md](./schema-migration.md).
 
 Assign the result away (`$null = …`) in scripts. `Connect-PSSqlRepository` emits the session object,
 and PowerShell's formatter derives its column layout from the first object in the output stream — a
@@ -196,6 +198,8 @@ Disconnect-PSSqlRepository
 
 - [entity-model.md](./entity-model.md) — a complete model with foreign keys, graph saves, and
   joined queries
+- [schema-migration.md](./schema-migration.md) — evolving an existing database when the model
+  changes: `Compare-`/`Update-PSSqlRepositorySchema` and `Connect -Migrate`
 - [provider-auth-reference.md](./provider-auth-reference.md) — per-provider connect parameters
 - [extensibility.md](./extensibility.md) — installing and trusting extensions
 - [../TROUBLESHOOTING.md](../TROUBLESHOOTING.md) — error messages and fixes

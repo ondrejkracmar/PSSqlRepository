@@ -4,13 +4,13 @@
     <command:details>
       <command:name>Update-PSSqlRepositoryEntity</command:name>
       <maml:description>
-        <maml:para>{{ Fill in the Synopsis }}</maml:para>
+        <maml:para>Updates existing entities: a discoverable proxy for Save-PSSqlRepositoryEntity -Mode Update.</maml:para>
       </maml:description>
       <command:verb>Update</command:verb>
       <command:noun>PSSqlRepositoryEntity</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>{{ Fill in the Description }}</maml:para>
+      <maml:para>Forwards every parameter to Save-PSSqlRepositoryEntity with -Mode Update, so an entity whose key does not exist yet fails instead of being inserted. Pipeline input, batching (-BatchSize), -IncludeNavigations, -OrphanBehavior and -PassThru behave exactly as on Save-PSSqlRepositoryEntity; see its help for details.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -88,7 +88,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>CommandTimeout</maml:name>
         <maml:description>
-          <maml:para>{{ Fill CommandTimeout Description }}</maml:para>
+          <maml:para>Per-invocation override (in seconds) of the command timeout used for the update; restored when the command ends.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Int32</command:parameterValue>
         <dev:type>
@@ -107,7 +107,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1" aliases="none">
         <maml:name>EntityType</maml:name>
         <maml:description>
-          <maml:para>{{ Fill EntityType Description }}</maml:para>
+          <maml:para>Entity type to update when it cannot be inferred from the input object (a hashtable or PSCustomObject).</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Type</command:parameterValue>
         <dev:type>
@@ -117,7 +117,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>IncludeNavigations</maml:name>
         <maml:description>
-          <maml:para>{{ Fill IncludeNavigations Description }}</maml:para>
+          <maml:para>Also merge navigation properties (child collections and references) instead of updating scalar columns only.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -126,7 +126,7 @@
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="0" aliases="none">
         <maml:name>InputObject</maml:name>
         <maml:description>
-          <maml:para>{{ Fill InputObject Description }}</maml:para>
+          <maml:para>The entity (or hashtable / PSCustomObject carrying its key) to update; accepts pipeline input.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">System.Management.Automation.PSObject</command:parameterValue>
         <dev:type>
@@ -136,7 +136,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>OrphanBehavior</maml:name>
         <maml:description>
-          <maml:para>{{ Fill OrphanBehavior Description }}</maml:para>
+          <maml:para>What happens to child rows a merged collection no longer contains: Detach, Delete or Fail (see Save-PSSqlRepositoryEntity).</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="true">PSSqlRepository.Core.OrphanBehavior</command:parameterValue>
         <dev:type>
@@ -146,7 +146,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>PassThru</maml:name>
         <maml:description>
-          <maml:para>{{ Fill PassThru Description }}</maml:para>
+          <maml:para>Returns the updated entity to the pipeline.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -155,7 +155,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
         <maml:name>SkipEnumeration</maml:name>
         <maml:description>
-          <maml:para>{{ Fill SkipEnumeration Description }}</maml:para>
+          <maml:para>Treat an input object that implements IEnumerable as one entity instead of unrolling it.</maml:para>
         </maml:description>
         <dev:type>
           <maml:name>System.Management.Automation.SwitchParameter</maml:name>
@@ -177,7 +177,7 @@
           <maml:name>System.Management.Automation.PSObject</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>Forwards every parameter to Save-PSSqlRepositoryEntity with -Mode Update, so an entity whose key does not exist yet fails instead of being inserted. Pipeline input, batching (-BatchSize), -IncludeNavigations, -OrphanBehavior and -PassThru behave exactly as on Save-PSSqlRepositoryEntity; see its help for details.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -187,22 +187,24 @@
           <maml:name>System.Object</maml:name>
         </dev:type>
         <maml:description>
-          <maml:para>{{ Fill in the Description }}</maml:para>
+          <maml:para>Forwards every parameter to Save-PSSqlRepositoryEntity with -Mode Update, so an entity whose key does not exist yet fails instead of being inserted. Pipeline input, batching (-BatchSize), -IncludeNavigations, -OrphanBehavior and -PassThru behave exactly as on Save-PSSqlRepositoryEntity; see its help for details.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>{{ Fill in the Notes }}</maml:para>
+        <maml:para>Proxy function defined in PSSqlRepository.psm1; the implementation is Save-PSSqlRepositoryEntity.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>--------- Example 1 ---------</maml:title>
         <maml:introduction>
-          <maml:para>{{ Add example description here }}</maml:para>
+          <maml:para>Loads an entity, changes a property and writes it back; an id that does not exist fails instead of inserting.</maml:para>
         </maml:introduction>
-        <dev:code />
+        <dev:code>$customer = Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Id 5
+$customer.Name = 'Renamed'
+$customer | Update-PSSqlRepositoryEntity -PassThru</dev:code>
         <dev:remarks />
       </command:example>
     </command:examples>

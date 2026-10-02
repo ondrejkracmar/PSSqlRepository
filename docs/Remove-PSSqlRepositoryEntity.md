@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Remove-PSSqlRepositoryEntity
 ---
@@ -13,7 +13,7 @@ title: Remove-PSSqlRepositoryEntity
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Deletes one or more entities through the active session.
 
 ## SYNTAX
 
@@ -36,13 +36,26 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+deletes one or more entities through the active session.
+Pipeline batched: N inputs result in a single SaveChanges call.
+
+Two parameter sets:
+
+- -InputObject from pipeline (typed instance, System.Management.Automation.PSObject, or hashtable carrying Id).
+- -EntityType -Id for ad-hoc deletion by key.
+
+Also exposed as Remove-PSSqlRepositoryItem for command-surface parity with the PSDataRepository module.
+The alias shares this single implementation so delete behaviour cannot drift between the Entity and Item spellings.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Get-PSSqlRepositoryEntity -EntityType ([Customer]) -Where { $_.Inactive } | Remove-PSSqlRepositoryEntity
+
+### Example 2
+
+Remove-PSSqlRepositoryEntity -EntityType ([Customer]) -Id 5
 
 ## PARAMETERS
 
@@ -70,7 +83,7 @@ HelpMessage: ''
 
 ### -EntityType
 
-{{ Fill EntityType Description }}
+The EntityType parameter.
 
 ```yaml
 Type: System.Type
@@ -91,7 +104,7 @@ HelpMessage: ''
 
 ### -Id
 
-{{ Fill Id Description }}
+The Id parameter.
 
 ```yaml
 Type: System.Object
@@ -112,7 +125,7 @@ HelpMessage: ''
 
 ### -InputObject
 
-{{ Fill InputObject Description }}
+The InputObject parameter.
 
 ```yaml
 Type: System.Management.Automation.PSObject
@@ -133,7 +146,7 @@ HelpMessage: ''
 
 ### -PassThru
 
-{{ Fill PassThru Description }}
+Returns the processed object(s) to the pipeline.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -185,19 +198,20 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.Management.Automation.PSObject
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## OUTPUTS
 
 ### System.Void
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

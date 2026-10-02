@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Start-PSSqlRepositoryTransaction
 ---
@@ -13,7 +13,7 @@ title: Start-PSSqlRepositoryTransaction
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Opens an explicit transaction on the active session and stores it in the ambient SqlSessionManager so subsequent Save-PSSqlRepositoryEntity calls enlist automatically.
 
 ## SYNTAX
 
@@ -30,13 +30,13 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+opens an explicit transaction on the active session and stores it in the ambient SqlSessionManager so subsequent Save-PSSqlRepositoryEntity calls enlist automatically.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Start-PSSqlRepositoryTransaction
 
 ## PARAMETERS
 
@@ -64,7 +64,7 @@ HelpMessage: ''
 
 ### -PassThru
 
-{{ Fill PassThru Description }}
+Returns the processed object(s) to the pipeline.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -118,13 +118,14 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### PSSqlRepository.Abstractions.ISqlRepositoryTransaction
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

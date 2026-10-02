@@ -69,7 +69,12 @@ if ($typeAcceleratorsClass) {
     foreach ($name in $accelerators.Keys) {
         $resolved = [type]::GetType($accelerators[$name], $false)
         if ($null -ne $resolved -and -not $existing.ContainsKey($name)) {
-            try { $typeAcceleratorsClass::Add($name, $resolved) }
+            try {
+                $typeAcceleratorsClass::Add($name, $resolved)
+                # Only what THIS import added is removed again on Remove-Module; an accelerator a
+                # sibling module (PSDataRepository uses the same names) registered first stays theirs.
+                $null = [PSSqlRepository.Commands.PSSqlRepositoryModuleCleanup]::OwnedTypeAccelerators.Add($name)
+            }
             catch { Write-Verbose "PSSqlRepository: could not register type accelerator '$name': $($_.Exception.Message)" }
         }
     }

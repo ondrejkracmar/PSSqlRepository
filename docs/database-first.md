@@ -76,6 +76,7 @@ reports these as skipped instead of emitting a type that would fail later:
 - tables with a **composite primary key** (junction tables),
 - tables with **no primary key**,
 - **views** (`-IncludeView` lists them in the report),
+- the migration history tables `__PSSqlRepositoryMigrations` and `__EFMigrationsHistory`,
 - columns whose store type neither the provider nor the built-in ANSI fallback can map are left
   off the entity and reported per table (`UnmappedColumns`), never dropped silently.
 
@@ -98,7 +99,9 @@ Import-PSSqlRepositorySchema DuckDB -Path .\analytics.duckdb -NoRegister | Selec
 ```
 
 `-Table` accepts bare names and `schema.table`; matching is case-insensitive. `-Schema` is
-ignored by providers without schemas (SQLite).
+ignored by providers without schemas (SQLite). The migration history tables
+(`__PSSqlRepositoryMigrations`, `__EFMigrationsHistory`) are always skipped, with a `SkipReason`
+saying so, so there is no need to exclude them by hand.
 
 ## Re-importing and type identity
 

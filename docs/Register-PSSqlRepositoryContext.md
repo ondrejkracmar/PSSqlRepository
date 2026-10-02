@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Register-PSSqlRepositoryContext
 ---
@@ -13,7 +13,7 @@ title: Register-PSSqlRepositoryContext
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Registers a provider-backed repository context type so subsequent Connect-PSSqlRepository sessions wire it plus the matching IRepository<T>/IUnitOfWork registrations into the session's DI scope.
 
 ## SYNTAX
 
@@ -30,19 +30,20 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+registers a provider-backed repository context type so subsequent Connect-PSSqlRepository sessions wire it plus the matching IRepository<T>/IUnitOfWork registrations into the session's DI scope.
+The user's entities are then reachable via Save-PSSqlRepositoryEntity and through Get-PSSqlRepositorySession.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Register-PSSqlRepositoryContext
 
 ## PARAMETERS
 
 ### -ContextType
 
-{{ Fill ContextType Description }}
+The ContextType parameter.
 
 ```yaml
 Type: System.Type
@@ -63,7 +64,7 @@ HelpMessage: ''
 
 ### -PassThru
 
-{{ Fill PassThru Description }}
+Returns the processed object(s) to the pipeline.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -84,7 +85,7 @@ HelpMessage: ''
 
 ### -ProviderName
 
-{{ Fill ProviderName Description }}
+Name of a registered SQL provider, for example Sqlite or SqlServer (see Get-PSSqlRepositoryProvider).
 
 ```yaml
 Type: System.String
@@ -116,13 +117,14 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.Void
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

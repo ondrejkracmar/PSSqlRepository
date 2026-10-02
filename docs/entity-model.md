@@ -159,8 +159,11 @@ Register-PSSqlRepositoryEntity -ProviderName DuckDB -EntityType ([Company]), ([P
 $null = Connect-PSSqlRepository DuckDB -Path .\demo.duckdb -EnsureCreated
 ```
 
-`-EnsureCreated` creates the schema from the model if it is not there. It is a development
-convenience, not a migration system: it will not alter an existing table when the model changes.
+`-EnsureCreated` creates the schema from the model if it is not there, and adds missing tables. It
+will not alter an existing table when the model changes. When you add a property to a class later,
+connect with `-Migrate` instead, or run `Update-PSSqlRepositorySchema` on the open session: both
+add the new columns, indexes and foreign keys and leave anything destructive for
+`-AllowDestructive`. See [schema-migration.md](./schema-migration.md).
 
 ### Saving a whole graph in one call
 

@@ -4,7 +4,7 @@ external help file: PSSqlRepository.Commands.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSSqlRepository
-ms.date: 09/13/2026
+ms.date: 10/02/2026
 PlatyPS schema version: 2024-05-01
 title: Connect-PSSqlRepository
 ---
@@ -13,29 +13,29 @@ title: Connect-PSSqlRepository
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Opens a session for the requested provider, applies the requested authentication mode (resolved through SqlAuthenticationRegistry), and stores the session in the ambient SqlSessionManager.
 
 ## SYNTAX
 
 ### ConnectionString (Default)
 
 ```
-Connect-PSSqlRepository [-ProviderName] <string> [-AuthMode <string>] [-ImportSchema] [-WhatIf]
- [-Confirm]
+Connect-PSSqlRepository [-ProviderName] <string> [-AuthMode <string>] [-ImportSchema] [-Migrate]
+ [-WhatIf] [-Confirm]
 ```
 
 ### IntegratedSecurity
 
 ```
-Connect-PSSqlRepository [-ProviderName] <string> [-AuthMode <string>] [-ImportSchema] [-WhatIf]
- [-Confirm]
+Connect-PSSqlRepository [-ProviderName] <string> [-AuthMode <string>] [-ImportSchema] [-Migrate]
+ [-WhatIf] [-Confirm]
 ```
 
 ### Credential
 
 ```
 Connect-PSSqlRepository [-ProviderName] <string> -Credential <pscredential> [-AuthMode <string>]
- [-ImportSchema] [-WhatIf] [-Confirm]
+ [-ImportSchema] [-Migrate] [-WhatIf] [-Confirm]
 ```
 
 ## ALIASES
@@ -45,19 +45,20 @@ This cmdlet has the following aliases,
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+opens a session for the requested provider, applies the requested authentication mode (resolved through SqlAuthenticationRegistry), and stores the session in the ambient SqlSessionManager.
+Returns a SqlRepositoryConnection handle.
 
 ## EXAMPLES
 
 ### Example 1
 
-{{ Add example description here }}
+Connect-PSSqlRepository
 
 ## PARAMETERS
 
 ### -AuthMode
 
-{{ Fill AuthMode Description }}
+The AuthMode parameter.
 
 ```yaml
 Type: System.String
@@ -112,7 +113,7 @@ HelpMessage: ''
 
 ### -Credential
 
-{{ Fill Credential Description }}
+The Credential parameter.
 
 ```yaml
 Type: System.Management.Automation.PSCredential
@@ -133,7 +134,35 @@ HelpMessage: ''
 
 ### -ImportSchema
 
-{{ Fill ImportSchema Description }}
+Database-first: reads the target database's schema first, emits one entity type per table and registers them as this provider's repository context, then connects.
+Equivalent to Import-PSSqlRepositorySchema (all tables) followed by Connect-PSSqlRepository with the same parameters.
+Replaces any context registered for the provider.
+See Import-PSSqlRepositorySchema for filtering and the schema report.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Migrate
+
+Forward-migrates the database schema to the registered model right after connecting: creates the database or missing tables (as -EnsureCreated does) and additionally adds missing columns, indexes and foreign keys to existing tables.
+Destructive differences (dropped columns, narrowed types) are reported as warnings and left alone; apply them with Update-PSSqlRepositorySchema -AllowDestructive.
+Each run that changes the schema is recorded in the __PSSqlRepositoryMigrations table.
+Cannot be combined with -ImportSchema.
+Implies -EnsureCreated.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -154,7 +183,7 @@ HelpMessage: ''
 
 ### -ProviderName
 
-{{ Fill ProviderName Description }}
+Name of a registered SQL provider, for example Sqlite or SqlServer (see Get-PSSqlRepositoryProvider).
 
 ```yaml
 Type: System.String
@@ -208,13 +237,14 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### PSSqlRepository.Providers.SqlRepositoryConnection
 
-{{ Fill in the Description }}
+See the cmdlet description.
 
 ## NOTES
 
-{{ Fill in the Notes }}
+Part of the PSSqlRepository module.
+See about_PSSqlRepository and the docs/ folder of the repository.
+
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+- [Online Version]()

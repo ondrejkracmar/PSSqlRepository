@@ -12,6 +12,8 @@ SQL provider/authentication extensions.
   bring your own `DbContext`
 - Provides server-side filtering, sorting, projection, paging, and eager loading
 - Supports Add / Update / Upsert persistence flows with object-graph handling
+- Creates the schema from the model and migrates an existing database forward when the model
+  changes (additive by default, destructive on request, scriptable for a DBA)
 - Keeps secrets out of warnings, errors, and diagnostics
 
 ## Install
@@ -86,6 +88,8 @@ extensions get it for free.
 | `Register-PSSqlRepositoryEntity` | Build a DbContext dynamically from PowerShell entity types |
 | `Register-PSSqlRepositoryContext` | Register a custom DbContext instead |
 | `Import-PSSqlRepositorySchema` | Database-first: emit entity types from an existing database and register them |
+| `Compare-PSSqlRepositorySchema` | Report how the connected database differs from the registered model |
+| `Update-PSSqlRepositorySchema` | Forward-migrate the database to the model (additive by default; `-Script`, `-AllowDestructive`) |
 | `Get-PSSqlRepositoryEntity` | Query entities |
 | `Save-PSSqlRepositoryEntity` | Persist changes (Add / Update / Upsert) |
 | `Update-PSSqlRepositoryEntity` | `Save … -Mode Update` under a discoverable verb |
@@ -122,6 +126,9 @@ Built-in providers:
 | `SqlServer` | `-Server`, `-Database`, `-TrustServerCertificate`, `-ConnectionString`, `-EnsureCreated` | `ConnectionString`, `IntegratedSecurity`, `UserPassword` |
 | `Sqlite` | `-Path`, `-Memory`, `-ConnectionString`, `-EnsureCreated` | `ConnectionString`, `UserPassword` |
 
+`-Migrate` is a common `Connect-PSSqlRepository` switch for every provider: `-EnsureCreated` plus
+additive migration of existing tables. See [`docs/schema-migration.md`](docs/schema-migration.md).
+
 Details in [`docs/provider-auth-reference.md`](docs/provider-auth-reference.md).
 
 ## Extensions
@@ -149,9 +156,11 @@ Install-PSSqlRepositoryExtension -Name My.Provider -Repository MyFeed -Trust
 ```
 
 The loader **fails closed**: it only instantiates strong-named assemblies whose public key token is
-either the module's own or listed in `extensions.trust.json`. An untrusted extension is installed
-but reported as `Rejected` rather than silently missing — `-Trust` is the explicit decision to let
-that publisher's code run. See [`docs/extensibility.md`](docs/extensibility.md).
+either the module's own or listed in `extensions.trust.json`, and a third-party assembly must also
+match the SHA-256 that `-Trust` pinned for it there. An untrusted or modified extension is
+installed but reported as `Rejected` rather than silently missing — `-Trust` is the explicit
+decision to let that publisher's code, as installed, run. See
+[`docs/extensibility.md`](docs/extensibility.md).
 
 To author one, reference the `PSSqlRepository.Extensions.Sdk` package — see
 [`docs/sdk.md`](docs/sdk.md).
@@ -163,6 +172,7 @@ To author one, reference the `PSSqlRepository.Extensions.Sdk` package — see
 | [`docs/getting-started.md`](docs/getting-started.md) | Install, first session, CRUD, transactions |
 | [`docs/entity-model.md`](docs/entity-model.md) | Full worked model: Company / Person / Customer with foreign keys |
 | [`docs/database-first.md`](docs/database-first.md) | Database-first: import an existing schema as entity types |
+| [`docs/schema-migration.md`](docs/schema-migration.md) | Forward migration: `Compare-`/`Update-PSSqlRepositorySchema`, `Connect -Migrate`, the history table |
 | [`docs/architecture.md`](docs/architecture.md) | Layering and component responsibilities |
 | [`docs/extensibility.md`](docs/extensibility.md) | How extensions are discovered, trusted, installed |
 | [`docs/sdk.md`](docs/sdk.md) | Authoring a provider or authentication extension |
