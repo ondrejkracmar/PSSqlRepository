@@ -326,6 +326,9 @@
           "PSSqlRepository.Providers": "[0.0.0-local, )"
         }
       },
+      "pssqlrepository.loader": {
+        "type": "Project"
+      },
       "pssqlrepository.providers": {
         "type": "Project",
         "dependencies": {
@@ -788,6 +791,9 @@
           "PSSqlRepository.Core": "[0.0.0-local, )",
           "PSSqlRepository.Providers": "[0.0.0-local, )"
         }
+      },
+      "pssqlrepository.loader": {
+        "type": "Project"
       },
       "pssqlrepository.providers": {
         "type": "Project",

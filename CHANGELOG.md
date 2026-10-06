@@ -6,6 +6,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-06
+
+### Fixed
+- **The module no longer breaks Az (or any other module) imported into the same session.** The
+  engine — the cmdlets, EF Core, `Microsoft.Extensions.*`, the SQL client libraries, Azure.Identity
+  — now runs in an `AssemblyLoadContext` of its own (`PSSqlRepository.Engine`) instead of the
+  process-wide default context. Before, whichever module loaded a library first decided its version
+  for everyone: `Import-Module Az.Resources` after PSSqlRepository failed with *"Could not load file
+  or assembly 'Microsoft.Extensions.Caching.Abstractions' … Assembly with same name is already
+  loaded"*, and PSSqlRepository after another module could fail the same way. Both import orders
+  now work. Only the new dependency-free `PSSqlRepository.Loader` and the contract assemblies
+  scripts compile against (`Isystem.Shared.Infrastructure.Core`/`.Services`, where `IEntity` lives)
+  are loaded into the default context.
+- **`Import-Module Az.Accounts` after PSSqlRepository works again.** The extension loader's
+  `Default.Resolving` handler answered every assembly request the default context could not
+  satisfy — from any module — with this module's copy, so Az.Accounts asking for its newer
+  Azure.Core received the module's older one (*"Could not load type
+  'Azure.Identity.TokenCachePersistenceOptions'"*). The handler is now installed only when the
+  module's own assemblies run in the default context (unit tests, the MCP host), never for an
+  imported module.
+
+### Changed
+- **Engine types are reachable from scripts through type accelerators.** PowerShell resolves type
+  literals only against the default context, so the module registers a full-name accelerator for
+  every public type of EF Core (`Microsoft.EntityFrameworkCore`, `.Abstractions`, `.Relational`,
+  `.Sqlite`, `.SqlServer`), `Microsoft.Data.Sqlite`, `Microsoft.Data.SqlClient`,
+  `Isystem.Shared.Infrastructure.EFCore` and the module's own assemblies. A context written in
+  PowerShell (`class ShopContext : Microsoft.EntityFrameworkCore.DbContext`, with
+  `DbSet[T]`/`DbContextOptions[T]`) derives from the engine's `DbContext` exactly as before. The
+  `IEntity` and `OrphanBehavior` short names are registered by the binary module now instead of the
+  psm1. Names already registered by someone else are left alone, and only the module's own are
+  removed on `Remove-Module`. Accelerators are process-wide: a script naming an EF Core type now
+  gets the module's EF Core even when another module loaded its own copy into the default context.
+- **The loader refuses a replaced binary module.** `PSSqlRepository.Loader` checks that
+  `PSSqlRepository.Commands.dll` carries its own strong-name public key token before loading it,
+  extending the extension loader's trust anchor to the engine entry point.
+- Types emitted by `Import-PSSqlRepositorySchema` / `Connect -ImportSchema` are defined in the
+  default context, where PowerShell can resolve them by name (`[Customer]`).
+- Extensions are unaffected: they still get one load context each and share the module's libraries,
+  now through the engine context. No extension needs to be rebuilt; the contract version is
+  unchanged.
+
+## [0.7.0] - 2026-10-02
+
 ### Added
 - **Extension trust pins file hashes.** `extensions.trust.json` gained `trustedFileHashes`
   (path relative to the trust file → SHA-256) and `developmentMode`. A third-party extension
@@ -48,14 +92,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   overload; `SqlProviderDefinitionBase.MigrateParameterName` and the virtual
   `MigrateAfterConnect`. The extension contract (Abstractions / Providers / Authentications) is
   unchanged.
-- **Schema import reports unique constraints and indexes.** `SqlSchemaTable.UniqueConstraints`
-  and `SqlSchemaTable.Indexes` (name, columns, `IsUnique`, filter) carry what the provider's
-  catalogue reader already sees, so a consumer building its own schema model from the import
-  no longer needs a separate catalogue query for them.
-- **Unmapped columns stay visible.** A column whose store type neither the provider nor the ANSI
-  fallback can map is still listed in `SqlSchemaTable.Columns` (`IsMappedToProperty = false`,
-  `ClrType = object`) instead of vanishing from the table description; it is just not emitted as
-  an entity property. `UnmappedColumns` keeps naming them for the warning.
 
 ### Changed
 - `Connect -EnsureCreated`'s table-creation and table-existence checks moved from
@@ -121,18 +157,19 @@ with a regression test in `ReviewFixesTests`:
 - `Remove-Module PSSqlRepository` no longer removes the `IEntity` / `OrphanBehavior` type
   accelerators when another module registered them first.
 
-### Removed
-- **BREAKING — the `Sql` prefix is gone from three loader types.**
-  `SqlExtensionLoader`, `SqlExtensionTrustStore` and `SqlExtensionLoadContext` are now
-  `ExtensionLoader`, `ExtensionTrustStore` and `ExtensionLoadContext`, matching
-  PSDataRepository. Everything else in `Core/Extensions` was already unprefixed, so these
-  three were the odd ones out and the prefix said nothing the namespace did not.
+## [0.6.1] - 2026-09-13
 
-  A script calling `[PSSqlRepository.Core.Extensions.SqlExtensionLoader]::Inspect(...)`
-  needs the new name. **Extensions are not affected** and do not need rebuilding: they
-  reference `Abstractions`, `Extensions.Sdk` and `Providers` and never touch `Core` — verified
-  against the published DuckDB, MySQL and PostgreSQL providers, none of which mentions either
-  type. The extension contract version stays at 1.0.0.
+### Added
+- **Schema import reports unique constraints and indexes.** `SqlSchemaTable.UniqueConstraints`
+  and `SqlSchemaTable.Indexes` (name, columns, `IsUnique`, filter) carry what the provider's
+  catalogue reader already sees, so a consumer building its own schema model from the import
+  no longer needs a separate catalogue query for them.
+- **Unmapped columns stay visible.** A column whose store type neither the provider nor the ANSI
+  fallback can map is still listed in `SqlSchemaTable.Columns` (`IsMappedToProperty = false`,
+  `ClrType = object`) instead of vanishing from the table description; it is just not emitted as
+  an entity property. `UnmappedColumns` keeps naming them for the warning.
+
+## [0.6.0] - 2026-09-13
 
 ### Added
 - **Database-first: `Import-PSSqlRepositorySchema` and `Connect-PSSqlRepository -ImportSchema`.**
@@ -172,6 +209,26 @@ with a regression test in `ReviewFixesTests`:
   an optional `SchemaModelConfigurationExtension` that `DynamicEntityDbContext` applies only
   when present). No contract assembly changed; the extension contract version stays at 1.0.0.
   See `docs/database-first.md`.
+
+### Security
+- `Microsoft.SourceLink.AzureRepos.Git` bumped to 10.0.401 (CVE-2026-62900).
+
+## [0.5.0] - 2026-08-16
+
+### Removed
+- **BREAKING — the `Sql` prefix is gone from three loader types.**
+  `SqlExtensionLoader`, `SqlExtensionTrustStore` and `SqlExtensionLoadContext` are now
+  `ExtensionLoader`, `ExtensionTrustStore` and `ExtensionLoadContext`, matching
+  PSDataRepository. Everything else in `Core/Extensions` was already unprefixed, so these
+  three were the odd ones out and the prefix said nothing the namespace did not.
+
+  A script calling `[PSSqlRepository.Core.Extensions.SqlExtensionLoader]::Inspect(...)`
+  needs the new name. **Extensions are not affected** and do not need rebuilding: they
+  reference `Abstractions`, `Extensions.Sdk` and `Providers` and never touch `Core` — verified
+  against the published DuckDB, MySQL and PostgreSQL providers, none of which mentions either
+  type. The extension contract version stays at 1.0.0.
+
+### Added
 - **The plugin load context now follows the .NET plugin model.** It builds an
   `AssemblyDependencyResolver` from the extension's own `.deps.json`, so an extension resolves
   the exact versions its build resolved; it gets one context **per extension** rather than per

@@ -179,12 +179,33 @@ intended. *"its SHA-256 is not pinned"* means the file was copied in without the
 Other reasons are tabulated in
 [docs/extensibility.md](docs/extensibility.md#diagnosing-a-missing-provider).
 
-### `PSSqlRepository: failed to preload '<assembly>': <message>`
+### `PSSqlRepository: could not find PSSqlRepository.Loader.dll …` / `… is not signed with the PSSqlRepository key`
 
-A supporting assembly that `PSSqlRepository.psm1` proactively loads is missing or
-fails to load. Reinstall the module to repair the installation. The cmdlets may
-still partially work, but `class Foo : IEntity[int]` declarations at the prompt
-will fail with cryptic type-resolution errors.
+The module loads its engine through `PSSqlRepository.Loader.dll`, which checks that
+`PSSqlRepository.Commands.dll` carries the module's strong-name key before loading it. A missing
+file or a different signature means the installation was modified or is incomplete; reinstall the
+module.
+
+### `Could not load file or assembly '…' … Assembly with same name is already loaded` (Az, other modules)
+
+Since the engine runs in its own `AssemblyLoadContext` (`PSSqlRepository.Engine`), the module puts
+nothing but `PSSqlRepository.Loader` and `Isystem.Shared.Infrastructure.Core`/`.Services` into the
+process-wide default context, so it no longer collides with Az.Accounts, Az.Resources or other
+modules in either import order. If the error persists, check which module loaded the named
+assembly first:
+
+```powershell
+[System.Runtime.Loader.AssemblyLoadContext]::Default.Assemblies |
+    Where-Object { $_.GetName().Name -like 'Microsoft.Extensions*' } |
+    ForEach-Object { '{0} {1} {2}' -f $_.GetName().Name, $_.GetName().Version, $_.Location }
+```
+
+### `Unable to find type [Microsoft.EntityFrameworkCore.…]` in a script
+
+Engine types are made nameable through type accelerators registered on import. Import the module
+before the script that names them is parsed (a `class` declaration is resolved when its script is
+parsed, not when it runs). A name another module registered first keeps pointing at that module's
+type.
 
 ### `PSSqlRepository: build output for runtime '<framework>' not found …`
 

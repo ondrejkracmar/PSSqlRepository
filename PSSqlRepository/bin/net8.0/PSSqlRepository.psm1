@@ -12,73 +12,44 @@ if (-not (Test-Path -LiteralPath $binRoot)) {
           "and net10.0 (PowerShell 7.6+). The module installation may be corrupted."
 }
 
-$binaryPath = [System.IO.Path]::Combine($binRoot, 'PSSqlRepository.Commands.dll')
-if (-not (Test-Path -LiteralPath $binaryPath)) {
-    throw "PSSqlRepository: could not find PSSqlRepository.Commands.dll at '$binaryPath'. " +
-          "The module installation may be corrupted."
-}
-
-# Cleanup is handled by PSSqlRepositoryModuleCleanup (IModuleAssemblyCleanup) inside the binary.
-Import-Module -Name $binaryPath
-
-# Proactively load the supporting assemblies that ship side-by-side with the
-# binary cmdlets so PowerShell's type resolver can see types like
-# [Isystem.Shared.Infrastructure.Services.Repository.IEntity`1] *before* a
-# `class Foo : IEntity[int]` declaration is parsed at the prompt. Import-Module
-# alone only forces the load of PSSqlRepository.Commands.dll; transitive
-# references stay lazy and are invisible to `[type]::GetType` until first use.
-$preloadAssemblies = @(
-    'Isystem.Shared.Infrastructure.Core.dll',
-    'Isystem.Shared.Infrastructure.Services.dll',
-    'Isystem.Shared.Infrastructure.EFCore.dll',
-    'PSSqlRepository.Abstractions.dll',
-    'PSSqlRepository.Authentications.dll',
-    'PSSqlRepository.Providers.dll',
-    'PSSqlRepository.Core.dll'
-)
-foreach ($asm in $preloadAssemblies) {
-    $asmPath = [System.IO.Path]::Combine($binRoot, $asm)
-    if (Test-Path -LiteralPath $asmPath) {
-        try { [void][System.Reflection.Assembly]::LoadFrom($asmPath) }
-        catch {
-            # Preload failures usually indicate a corrupted installation or a missing
-            # transitive dependency. Surface them as a warning (not just verbose) so
-            # users see a hint *before* a downstream `class Foo : IEntity[int]` fails
-            # with a cryptic 'unable to find type' error.
-            Write-Warning "PSSqlRepository: failed to preload '$asm': $($_.Exception.Message). The module may not function correctly; reinstall to repair."
-        }
+foreach ($required in 'PSSqlRepository.Loader.dll', 'PSSqlRepository.Commands.dll') {
+    if (-not (Test-Path -LiteralPath ([System.IO.Path]::Combine($binRoot, $required)))) {
+        throw "PSSqlRepository: could not find $required in '$binRoot'. " +
+              "The module installation may be corrupted."
     }
 }
 
-# Register short type accelerators so PowerShell users can write
-#   class Customer : IEntity[int] { ... }
-# without a leading `using namespace Isystem.Shared.Infrastructure.Services.Repository`.
-# Accelerators registered here are process-wide; PSSqlRepositoryModuleCleanup removes
-# them on Remove-Module so subsequent re-imports stay idempotent.
-$typeAcceleratorsClass = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')
-if ($typeAcceleratorsClass) {
-    $existing = $typeAcceleratorsClass::Get
-    # NB: PowerShell's `Type[T]` syntax (e.g. `IEntity[int]`) requires the accelerator
-    # to point at the *open generic* definition (`IEntity`1`), not at the non-generic
-    # convenience interface. Without the backtick-1 the parser would resolve `IEntity`
-    # to the non-generic interface and then fail to apply the type argument.
-    $accelerators = @{
-        'IEntity'        = 'Isystem.Shared.Infrastructure.Services.Repository.IEntity`1, Isystem.Shared.Infrastructure.Services'
-        'OrphanBehavior' = 'PSSqlRepository.Core.OrphanBehavior, PSSqlRepository.Core'
-    }
-    foreach ($name in $accelerators.Keys) {
-        $resolved = [type]::GetType($accelerators[$name], $false)
-        if ($null -ne $resolved -and -not $existing.ContainsKey($name)) {
-            try {
-                $typeAcceleratorsClass::Add($name, $resolved)
-                # Only what THIS import added is removed again on Remove-Module; an accelerator a
-                # sibling module (PSDataRepository uses the same names) registered first stays theirs.
-                $null = [PSSqlRepository.Commands.PSSqlRepositoryModuleCleanup]::OwnedTypeAccelerators.Add($name)
-            }
-            catch { Write-Verbose "PSSqlRepository: could not register type accelerator '$name': $($_.Exception.Message)" }
-        }
-    }
+# The engine — the cmdlets, EF Core, Microsoft.Extensions.*, the SQL client libraries — runs in an
+# AssemblyLoadContext of its own (see PSSqlRepository.Loader). Loading it into the process-wide
+# default context, as Import-Module of the binary path would, decides for every other module in the
+# session which version of those libraries exists; Az.Resources, for one, then fails to import.
+# Only the dependency-free loader and the types scripts compile against
+# (Isystem.Shared.Infrastructure.Core/.Services) go into the default context.
+#
+# A loader already loaded by an earlier import is reused: a second file with the same assembly name
+# cannot be loaded into the default context. Each module directory still gets its own engine.
+$loaderAssembly = [System.AppDomain]::CurrentDomain.GetAssemblies() |
+    Where-Object { $_.GetName().Name -eq 'PSSqlRepository.Loader' -and
+                   [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext($_) -eq [System.Runtime.Loader.AssemblyLoadContext]::Default } |
+    Select-Object -First 1
+if (-not $loaderAssembly) {
+    $loaderAssembly = [System.Reflection.Assembly]::LoadFrom([System.IO.Path]::Combine($binRoot, 'PSSqlRepository.Loader.dll'))
 }
+$commandsAssembly = $loaderAssembly.GetType('PSSqlRepository.Loader.ModuleEngine', $true)::LoadCommands($binRoot)
+
+# Initialization (extension loading, type accelerators) and cleanup are handled inside the binary by
+# PSSqlRepositoryModuleInitializer (IModuleAssemblyInitializer) and PSSqlRepositoryModuleCleanup
+# (IModuleAssemblyCleanup). The accelerators make the engine's types nameable from scripts
+# (class Customer : IEntity[int], class ShopContext : Microsoft.EntityFrameworkCore.DbContext).
+#
+# The engine (and with it this assembly) outlives Remove-Module, and so does the binary module an
+# earlier import created from it: PowerShell keeps it loaded and a second Import-Module -Assembly
+# from this psm1 then imports none of its cmdlets into the new module. Removing that leftover
+# first (its IModuleAssemblyCleanup resets the module state) makes every import start clean.
+Get-Module -All |
+    Where-Object { $_.ModuleType -eq 'Binary' -and $_.ImplementingAssembly -eq $commandsAssembly } |
+    Remove-Module -Force
+Import-Module -Assembly $commandsAssembly
 
 # Update-PSSqlRepositoryEntity: discoverability proxy for Save-PSSqlRepositoryEntity -Mode Update.
 # Kept as a thin function (not a separate binary cmdlet) so there is exactly one
